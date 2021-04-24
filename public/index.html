@@ -10,10 +10,20 @@
     <link href="/css/normalize.css" rel="stylesheet">
     <link href="/css/brixi.css" rel="stylesheet">
     <link href="/css/base.css" rel="stylesheet">
+    <link href="/css/buttons.css" rel="stylesheet">
+    <link href="/css/input.css" rel="stylesheet">
 
-    <!-- <script type="module" src="/js/ws.js"></script> -->
+    <script type="module" src="/js/ws.js"></script>
+    <script type="module" src="/js/login-component.js"></script>
 </head>
-<body>
-    
+<body flex="items-center justify-center">
+    <login-component class="block p-1 bg-white radius-0.5 shadow-md w-mobile max-w-full">
+        <form>
+            <div class="input">
+                <input type="email" name="email" placeholder="Email address" required>
+            </div>
+            <button type="submit" class="bttn w-full mt-1" kind="solid" color="primary" shape="rounded">Login</button>
+        </form>
+    </login-component>
 </body>
 </html>
