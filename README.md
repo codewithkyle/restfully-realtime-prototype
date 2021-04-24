@@ -8,7 +8,7 @@ This prototype is designed to explore the effort it would take to add a real tim
 
 ## Roadmap
 
-- [ ] Basic account creation
+- [x] Basic account creation
 - [ ] Users can create products
 - [ ] Users can create purchase orders
 - [ ] Users can add products to purchase orders
