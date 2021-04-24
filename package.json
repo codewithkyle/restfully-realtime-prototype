@@ -25,6 +25,7 @@
     "build": "npm-run-all build:*",
     "build:js": "twist --src=./src --outdir=./public/js",
     "build:css": "cssmonster",
-    "brixi": "brixi && mv ./brixi/brixi.css ./src/globals/brixi.css && rmdir ./brixi"
+    "brixi": "brixi && mv ./brixi/brixi.css ./src/globals/brixi.css && rmdir ./brixi",
+    "server": "node ./server/express.js"
   }
 }
