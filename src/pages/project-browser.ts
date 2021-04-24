@@ -45,13 +45,15 @@ export default class ProjectBrowser extends HTMLElement{
 
     private render(projects){
         const view = html`
-            <div class="w-mobile max-w-full mt-4 mx-auto radius-0.5 bg-white shadow-sm p-1">
-                ${projects.map(project => {
-                    return html`<a href="/project/${project.uid}" class="radius-0.5 w-full px-1 mb-1 font-grey-800 bg-grey-100" flex="items-center" style="height:48px">
-                        ${project.name}
-                </a>`;
-                })}
-                <button @click=${this.createNewProject} class="bttn w-full" kind="solid" color="primary" shape="rounded">New Project</button>
+            <div class="w-full h-full" flex="items-center justify-center">
+                <div class="w-mobile max-w-full mt-4 mx-auto radius-0.5 bg-white shadow-sm p-1">
+                    ${projects.map(project => {
+                        return html`<a href="/project/${project.uid}" class="radius-0.5 w-full px-1 mb-1 font-grey-800 bg-grey-100 border-1 border-solid border-grey-300" flex="items-center" style="height:48px">
+                            ${project.name}
+                    </a>`;
+                    })}
+                    <button @click=${this.createNewProject} class="bttn w-full" kind="solid" color="primary" shape="rounded">New Project</button>
+                </div>
             </div>
         `;
         render(view, this);
