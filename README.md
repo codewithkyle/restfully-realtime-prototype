@@ -9,7 +9,7 @@ This prototype is designed to explore the effort it would take to add a real tim
 ## Roadmap
 
 - [x] Basic account creation
-- [ ] Users can create products
+- [x] Users can create products
 - [x] Users can create projects
 - [ ] Users can add products to projects
 - [ ] Users can change product quantities on a purhcase order

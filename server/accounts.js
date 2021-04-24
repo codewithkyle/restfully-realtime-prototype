@@ -19,6 +19,19 @@ class AccountManager {
         this.users[email.toLowerCase().trim()] = uid;
         return uid;
     }
+
+    verifyUser(userId){
+        let verified = false;
+        for (const key in this.users){
+            if (this.users[key] === userId){
+                verified = true;
+                break;
+            }
+        }
+        if (!verified){
+            throw 401;
+        }
+    }
 }
 const manager = new AccountManager();
 module.exports = manager;

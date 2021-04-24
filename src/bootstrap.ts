@@ -14,5 +14,6 @@ configure({
         tagName: "project-component",
         file: "./project.js",
     },
+    "/products": "product-browser",
     "404": "missing-page",
 });

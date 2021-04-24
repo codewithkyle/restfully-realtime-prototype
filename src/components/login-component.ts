@@ -26,7 +26,7 @@ export class LoginComponent extends HTMLElement{
             const response = await request.json();
             if (response.success){
                 sessionStorage.setItem("uid", response.data);
-                navigateTo("/projects");
+                navigateTo("/");
             }
         }
     } 
