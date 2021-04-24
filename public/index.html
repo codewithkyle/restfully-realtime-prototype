@@ -13,17 +13,20 @@
     <link href="/css/buttons.css" rel="stylesheet">
     <link href="/css/input.css" rel="stylesheet">
 
+    <script>
+        (function(){
+            var redirect = sessionStorage.redirect;
+            delete sessionStorage.redirect;
+            if (redirect && redirect != location.href){
+                history.replaceState(null, null, redirect);
+            }
+        })();
+    </script>
+
     <script type="module" src="/js/ws.js"></script>
-    <script type="module" src="/js/login-component.js"></script>
+    <script type="module" src="/js/bootstrap.js"></script>
 </head>
-<body flex="items-center justify-center">
-    <login-component class="block p-1 bg-white radius-0.5 shadow-md w-mobile max-w-full">
-        <form>
-            <div class="input">
-                <input type="email" name="email" placeholder="Email address" required>
-            </div>
-            <button type="submit" class="bttn w-full mt-1" kind="solid" color="primary" shape="rounded">Login</button>
-        </form>
-    </login-component>
+<body>
+    <main></main>
 </body>
 </html>

@@ -1,4 +1,6 @@
-class LoginComponent extends HTMLElement{
+import { navigateTo } from "@codewithkyle/router";
+
+export class LoginComponent extends HTMLElement{
     private form: HTMLFormElement;
 
     constructor(){
@@ -22,7 +24,10 @@ class LoginComponent extends HTMLElement{
                 }),
             });
             const response = await request.json();
-            console.log(response);
+            if (response.success){
+                sessionStorage.setItem("uid", response.data);
+                navigateTo("/projects");
+            }
         }
     } 
 
@@ -30,4 +35,3 @@ class LoginComponent extends HTMLElement{
         this.form.addEventListener("submit", this.submitLoginForm);
     }
 }
-customElements.define("login-component", LoginComponent);

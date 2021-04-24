@@ -8,6 +8,7 @@
     "ws": "^7.4.5"
   },
   "devDependencies": {
+    "@codewithkyle/router": "^1.0.0",
     "@codewithkyle/supercomponent": "^1.0.0",
     "@codewithkyle/twist": "^1.0.1",
     "brixi": "^0.3.3",
@@ -20,6 +21,7 @@
   },
   "bundle": [
     "@codewithkyle/supercomponent",
+    "@codewithkyle/router",
     "lit-html"
   ],
   "scripts": {
