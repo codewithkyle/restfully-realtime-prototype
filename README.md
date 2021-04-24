@@ -10,15 +10,15 @@ This prototype is designed to explore the effort it would take to add a real tim
 
 - [x] Basic account creation
 - [ ] Users can create products
-- [ ] Users can create purchase orders
-- [ ] Users can add products to purchase orders
+- [x] Users can create projects
+- [ ] Users can add products to projects
 - [ ] Users can change product quantities on a purhcase order
-- [ ] Sync purchase order model (product quantity) changes with all connected users
+- [ ] Sync project model (product quantity) changes with all connected users
 
 ### Bonus
 
 - [ ] Store information in IDB
-- [ ] Keep all products and purchase orders in sync
+- [ ] Keep all products and projects in sync
 - [ ] Add persistance with [Prisma](https://www.prisma.io/)
 - [ ] Implement [Firebase Auth](https://firebase.google.com/)
 

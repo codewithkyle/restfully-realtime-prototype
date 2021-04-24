@@ -10,5 +10,9 @@ configure({
         file: "./homepage.js",
     },
     "/projects": "project-browser",
+    "/project/{UID}": {
+        tagName: "project-component",
+        file: "./project.js",
+    },
     "404": "missing-page",
 });

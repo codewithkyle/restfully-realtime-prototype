@@ -8,11 +8,8 @@ class AccountManager {
     lookupUser(email){
         email = email.toLowerCase().trim();
         let uid = null;
-        for (const key in this.users){
-            if (key === email){
-                uid = this.users[key];
-                break;
-            }
+        if (email in this.users){
+            uid = this.users[email];
         }
         return uid;
     }

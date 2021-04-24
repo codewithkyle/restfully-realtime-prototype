@@ -13,6 +13,7 @@ const cwd = process.cwd();
 
 const { buildSuccessResponse, buildErrorResponse } = require("./utils");
 const AccountManager = require("./accounts");
+const ProjectManager = require("./projects");
 
 app.post('/api/v1/login', async (req, res) => {
     try {
@@ -24,6 +25,57 @@ app.post('/api/v1/login', async (req, res) => {
         return res.status(200).json(buildSuccessResponse(uid));
     } catch (status) {
         switch (status){
+            default:
+                return res.status(500).json(buildErrorResponse(status));
+        }
+    }
+});
+
+app.get('/api/v1/projects', async (req, res) => {
+    try {
+        const projects = ProjectManager.getProjects();
+        return res.status(200).json(buildSuccessResponse(projects));
+    } catch (status) {
+        switch (status){
+            default:
+                return res.status(500).json(buildErrorResponse(status));
+        }
+    }
+});
+
+app.put('/api/v1/projects', async (req, res) => {
+    try {
+        const userId = req.get("authorization");
+        if (!userId){
+            throw 401;
+        }
+        const name = req.body.name;
+        const projectUid = ProjectManager.createProject(userId, name);
+        return res.status(200).json(buildSuccessResponse(projectUid));
+    } catch (status) {
+        switch (status){
+            case 401:
+                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+            default:
+                return res.status(500).json(buildErrorResponse(status));
+        }
+    }
+});
+
+app.get('/api/v1/projects/:uid', async (req, res) => {
+    try {
+        const userId = req.get("authorization");
+        if (!userId){
+            throw 401;
+        }
+        const project = ProjectManager.lookupProject(req.params.uid);
+        return res.status(200).json(buildSuccessResponse(project));
+    } catch (status) {
+        switch (status){
+            case 404:
+                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+            case 401:
+                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
             default:
                 return res.status(500).json(buildErrorResponse(status));
         }
