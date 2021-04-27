@@ -5,9 +5,9 @@ class CommandCenter {
         this.ledger = [];
     }
 
-    op(opperation){
-        broadcast(opperation);
-        this.ledger.push(opperation);
+    op(operation){
+        broadcast(operation);
+        this.ledger.push(operation);
         this.ledger = this.ledger.sort((a, b) => {
             return a.timestamp - b.timestamp;
         });

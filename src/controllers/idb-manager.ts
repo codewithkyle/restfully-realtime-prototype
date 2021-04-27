@@ -98,8 +98,8 @@ class IDBManager {
         });
     }
 
-    public async handleOP(opperation){
-        const { op, table, key, value, keypath } = opperation;
+    public async handleOP(operation){
+        const { op, table, key, value, keypath } = operation;
         switch (op){
             case "INSERT":
                 await new Promise(resolve => {
