@@ -110,6 +110,16 @@ class IDBManager {
     public async handleOP(operation){
         const { op, table, key, value, keypath } = operation;
         switch (op){
+            case "SET":
+                await new Promise(resolve => {
+                    this.send("set", {
+                        table: table,
+                        key: key,
+                        value: value,
+                        keypath: keypath
+                    }, resolve);
+                });
+                break;
             case "DELETE":
                 await new Promise(resolve => {
                     this.send("delete", {

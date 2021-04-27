@@ -38,6 +38,14 @@ class ListManager {
             throw 404;
         }
     }
+    toggle(uid){
+        if (uid in this.lists){
+            this.lists[uid].toggle();
+            return this.lists[uid].getDetails();
+        } else {
+            throw 404;
+        }
+    }
 }
 const manager = new ListManager();
 
@@ -62,6 +70,13 @@ class List {
     }
     delete(){
         this.deleted = true;
+    }
+    toggle(){
+        if (this.public){
+            this.public = false;
+        } else {
+            this.public = true;
+        }
     }
 };
 module.exports = manager;

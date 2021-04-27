@@ -13,7 +13,7 @@ This prototype is designed to explore the effort it would take to add a real tim
 - [ ] Users can add/update items to a list
 - [ ] Users can update the list name
 - [x] Users can delete a list they created
-- [ ] Users can make a list publicly editable
+- [x] Users can make a list publicly editable
 - [ ] Users can rearrange list items
 
 ### Bonus

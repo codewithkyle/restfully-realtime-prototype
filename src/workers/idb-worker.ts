@@ -11,6 +11,11 @@ class IDBWorker {
     private inbox(e:MessageEvent){
         const { type, uid, data } = e.data;
         switch (type){
+            case "set":
+                this.set(data).then(() => {
+                    this.send("response", null, uid);
+                });
+                break;
             case "delete":
                 this.delete(data).then(() => {
                     this.send("response", null, uid);
@@ -52,6 +57,25 @@ class IDBWorker {
 			self.postMessage(message);
 		}
 	}
+
+    private findKeyViaKeypath(object, keypath, value){
+        const key = keypath[0];
+        keypath.splice(0, 1);
+        if (keypath.length){
+            this.findKeyViaKeypath(object[key], keypath, value);
+        } else {
+            object[key] = value;
+        }
+    }
+
+    private async set(settings){
+        const keypath = settings.keypath.split("::");
+        const data = await this.db.get(settings.table, settings.key);
+        if (data){
+            this.findKeyViaKeypath(data, keypath, settings.value);
+            await this.db.put(settings.table, data);
+        }
+    }
 
     private async delete(settings){
         await this.db.delete(settings.table, settings.key);

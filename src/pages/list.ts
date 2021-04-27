@@ -62,6 +62,21 @@ export default class List extends SuperComponent<ListState>{
         }
     }
 
+    private togglePublic:EventListener = async (e:Event) => {
+        const request = await fetch(`/api/v1/lists/${this.model.uid}/toggle`, {
+            method: "POST",
+            headers: new Headers({
+                Accept: "application/json",
+                Authorization: sessionStorage.getItem("uid"),
+            }),
+        });
+        const response = await request.json();
+        if (request.ok && response.success){
+            await idb.addList(response.data);
+            this.update(response.data);
+        }
+    }
+
     connected(){
         this.inboxId = subscribe("data-sync", this.inbox.bind(this));
     }
@@ -90,7 +105,9 @@ export default class List extends SuperComponent<ListState>{
                                 </svg>
                             </button>
                             <overflow-menu>
-                                <button>Make Public</button>
+                                <button @click=${this.togglePublic}>
+                                    ${ this.model.public ? "Make Private" : "Make Public" }
+                                </button>
                                 <button color="danger" @click=${this.deleteList}>
                                     Delete List
                                 </button>
