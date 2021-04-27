@@ -1,44 +1,44 @@
 const { v4: uuid } = require('uuid');
 
-class ProjectManager {
+class ListManager {
     constructor(){
-        this.projects = {};
+        this.lists = {};
     }
-    createProject(userId, name){
+    createList(userId, name){
         const uid = uuid();
-        this.projects[uid] = new Project(uid, userId, name);
+        this.lists[uid] = new List(uid, userId, name);
         return uid;
     }
-    lookupProject(uid){
-        if (uid in this.projects){
-            return this.projects[uid].getDetails();
+    lookupList(uid){
+        if (uid in this.lists){
+            return this.lists[uid].getDetails();
         } else {
             throw 404;
         }
     }
-    getProjects(){
+    getLists(){
         let out = [];
-        for (const key in this.projects){
-            out.push(this.projects[key].getDetails());
+        for (const key in this.lists){
+            out.push(this.lists[key].getDetails());
         }
         return out;
     }
 }
-const manager = new ProjectManager();
+const manager = new ListManager();
 
-class Project {
+class List {
     constructor(uid, authorId, name){
         this.uid = uid;
         this.author = authorId;
         this.name = name;
-        this.products = [];
+        this.items = [];
     }
     getDetails(){
         return {
             uid: this.uid,
             author: this.author,
             name: this.name,
-            products: this.products,
+            items: this.items,
         };
     }
 };

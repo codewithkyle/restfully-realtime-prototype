@@ -9,11 +9,10 @@ configure({
         tagName: "home-page",
         file: "./homepage.js",
     },
-    "/projects": "project-browser",
-    "/project/{UID}": {
-        tagName: "project-component",
-        file: "./project.js",
+    "/lists": "list-browser",
+    "/lists/{UID}": {
+        tagName: "list-component",
+        file: "./list.js",
     },
-    "/products": "product-browser",
     "404": "missing-page",
 });
