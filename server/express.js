@@ -44,7 +44,8 @@ app.put('/api/v1/lists', async (req, res) => {
         const userId = req.get("authorization");
         const name = req.body.name;
         const listUid = ListManager.createList(userId, name);
-        return res.status(200).json(buildSuccessResponse(listUid));
+        const list = ListManager.lookupList(listUid);
+        return res.status(200).json(buildSuccessResponse(list));
     } catch (status) {
         switch (status){
             case 401:

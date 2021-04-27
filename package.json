@@ -17,6 +17,7 @@
     "esinstall": "^1.1.4",
     "fuzzysort": "^1.1.4",
     "glob": "^7.1.6",
+    "idb": "^6.0.0",
     "lit-html": "^1.3.0",
     "npm-run-all": "^4.1.5"
   },
@@ -24,12 +25,13 @@
     "@codewithkyle/supercomponent",
     "@codewithkyle/router",
     "lit-html",
-    "fuzzysort"
+    "fuzzysort",
+    "idb"
   ],
   "scripts": {
     "bundle": "node ./build/bundle.js",
     "build": "npm-run-all build:*",
-    "build:js": "twist --src=./src --outdir=./public/js",
+    "build:js": "twist --src=./src --outdir=./public/js --config=./esbuild.config.js",
     "build:css": "cssmonster",
     "brixi": "brixi && mv ./brixi/brixi.css ./src/globals/brixi.css && rmdir ./brixi",
     "server": "node ./server/express.js"

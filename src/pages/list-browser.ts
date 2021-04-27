@@ -1,5 +1,6 @@
 import { html, render } from "lit-html";
 import { navigateTo } from "@codewithkyle/router";
+import idb from "../controllers/idb-manager";
 
 export default class ListBrowser extends HTMLElement{
     constructor(){
@@ -8,16 +9,8 @@ export default class ListBrowser extends HTMLElement{
     }
 
     private async init(){
-        const request = await fetch("/api/v1/lists", {
-            method: "GET",
-            headers: new Headers({
-                Accept: "application/json",
-            }),
-        });
-        const response = await request.json();
-        if (response.success){
-            this.render(response.data);
-        }
+        const lists = await idb.getLists();
+        this.render(lists);
     }
 
     private createList:EventListener = async (e:Event) => {
@@ -39,7 +32,8 @@ export default class ListBrowser extends HTMLElement{
         });
         const response = await request.json();
         if (response.success){
-            navigateTo(`/lists/${response.data}`);
+            await idb.addList(response.data);
+            navigateTo(`/lists/${response.data.uid}`);
         }
     }
 
@@ -48,10 +42,10 @@ export default class ListBrowser extends HTMLElement{
             <div class="w-full h-full" flex="items-center justify-center">
                 <div class="w-mobile max-w-full mt-4 mx-auto radius-0.5 bg-white shadow-sm p-1">
                     <h1 class="block w-full font-grey-800 font-lg mb-1 font-bold text-center">Lists</h1>
-                    ${lists.map(project => {
+                    ${lists.map(list => {
                         return html`
-                            <a href="/lists/${project.uid}" class="radius-0.5 w-full px-1 mb-1 font-grey-800 bg-grey-100 border-1 border-solid border-grey-300" flex="items-center" style="height:48px">
-                                ${project.name}
+                            <a href="/lists/${list.uid}" class="radius-0.5 w-full px-1 mb-1 font-grey-800 bg-grey-100 border-1 border-solid border-grey-300" flex="items-center" style="height:48px">
+                                ${list.name}
                             </a>
                         `;
                     })}

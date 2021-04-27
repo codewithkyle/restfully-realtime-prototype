@@ -1,8 +1,6 @@
 import { navigateTo } from "@codewithkyle/router";
 import { html, render } from "lit-html";
-
-import { LoginComponent } from "../components/login-component";
-customElements.define("login-component", LoginComponent);
+import idb from "../controllers/idb-manager";
 
 export default class Homepage extends HTMLElement{
     constructor(){
@@ -45,7 +43,8 @@ export default class Homepage extends HTMLElement{
         });
         const response = await request.json();
         if (response.success){
-            navigateTo(`/lists/${response.data}`);
+            await idb.addList(response.data);
+            navigateTo(`/lists/${response.data.uid}`);
         }
     }
 
