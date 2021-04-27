@@ -3,6 +3,7 @@ import { html, render } from "lit-html";
 import SuperComponent from "@codewithkyle/supercomponent";
 import css from "../utils/css";
 import { navigateTo } from "@codewithkyle/router";
+import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
 
 type ListState = {
     items: Array<any>,
@@ -12,6 +13,7 @@ type ListState = {
     public: boolean;
 };
 export default class List extends SuperComponent<ListState>{
+    private inboxId: string;
 
     constructor(tokens, params){
         super();
@@ -32,6 +34,24 @@ export default class List extends SuperComponent<ListState>{
             navigateTo("/lists");
         }
         this.update(list);
+    }
+
+    private async inbox(data){
+        if (data === this.model.uid){
+            console.log("update");
+            const updatedList = await idb.getList(this.model.uid);
+            this.update(updatedList);
+        }
+    }
+
+    connected(){
+        this.inboxId = subscribe("data-sync", this.inbox.bind(this));
+    }
+
+    disconnected(){
+        if (this.inboxId){
+            unsubscribe(this.inboxId, "data-sync");
+        }
     }
 
     render(){

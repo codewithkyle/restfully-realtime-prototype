@@ -6,14 +6,13 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 const httpServer = http.createServer(app);
 httpServer.listen(5001);
-const wss = require("./websockets");
-const fs = require("fs");
 const path = require("path");
 const cwd = process.cwd();
 
 const { buildSuccessResponse, buildErrorResponse } = require("./utils");
 const AccountManager = require("./accounts");
 const ListManager = require("./lists");
+const CommandCenter = require("./command-center");
 
 app.post('/api/v1/login', async (req, res) => {
     try {
@@ -45,6 +44,12 @@ app.put('/api/v1/lists', async (req, res) => {
         const name = req.body.name;
         const listUid = ListManager.createList(userId, name);
         const list = ListManager.lookupList(listUid);
+        CommandCenter.op({
+            op: "INSERT",
+            table: "lists",
+            key: list.uid,
+            value: list,
+        });
         return res.status(200).json(buildSuccessResponse(list));
     } catch (status) {
         switch (status){

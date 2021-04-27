@@ -8,6 +8,7 @@
     "ws": "^7.4.5"
   },
   "devDependencies": {
+    "@codewithkyle/pubsub": "^1.1.0",
     "@codewithkyle/router": "^1.0.0",
     "@codewithkyle/supercomponent": "^1.0.0",
     "@codewithkyle/twist": "^1.0.1",
@@ -24,6 +25,7 @@
   "bundle": [
     "@codewithkyle/supercomponent",
     "@codewithkyle/router",
+    "@codewithkyle/pubsub",
     "lit-html",
     "fuzzysort",
     "idb"

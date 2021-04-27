@@ -1,5 +1,6 @@
 import uuid from "../utils/uuid";
 import noop from "../utils/noop";
+import { createSubscription, publish } from "@codewithkyle/pubsub";
 
 class IDBManager {
     private queue: Array<any>;
@@ -18,6 +19,7 @@ class IDBManager {
         this.promises = {};
         this.worker = new Worker("/js/idb-worker.js");
         this.worker.onmessage = this.inbox.bind(this);
+        createSubscription("data-sync");
     }
 
     private inbox(e:MessageEvent):void{
@@ -94,6 +96,25 @@ class IDBManager {
                 data: data,
             }, resolve);
         });
+    }
+
+    public async handleOP(opperation){
+        const { op, table, key, value, keypath } = opperation;
+        switch (op){
+            case "INSERT":
+                await new Promise(resolve => {
+                    this.send("put", {
+                        table: table,
+                        data: value,
+                    }, resolve);
+                });
+                break;
+            default:
+                console.warn(`Unhandled OP type: ${op}`);
+                break;
+        }
+        console.log("handle op");
+        publish("data-sync", key);
     }
 }
 const manager = new IDBManager();
