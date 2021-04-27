@@ -110,6 +110,31 @@ app.post('/api/v1/lists/:uid/toggle', async (req, res) => {
     }
 });
 
+app.post('/api/v1/lists/:uid/update-title', async (req, res) => {
+    try {
+        const userId = req.get("authorization");
+        let list = ListManager.verifyAccess(req.params.uid, userId);
+        list = ListManager.updateTitle(list.uid, req.body.title);
+        CommandCenter.op({
+            op: "SET",
+            table: "lists",
+            key: list.uid,
+            keypath: "name",
+            value: list.name,
+        });
+        return res.status(200).json(buildSuccessResponse(list));
+    } catch (status) {
+        switch (status){
+            case 404:
+                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+            case 401:
+                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+            default:
+                return res.status(500).json(buildErrorResponse(status));
+        }
+    }
+});
+
 app.get("/*", async (req, res) => {
     return res.sendFile(path.join(cwd, "public", "index.html"));
 });

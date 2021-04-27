@@ -4,6 +4,7 @@ import SuperComponent from "@codewithkyle/supercomponent";
 import css from "../utils/css";
 import { navigateTo } from "@codewithkyle/router";
 import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
+import debounce from "../utils/debounce";
 
 type ListState = {
     items: Array<any>,
@@ -77,6 +78,34 @@ export default class List extends SuperComponent<ListState>{
         }
     }
 
+    private async updateTitle(value){
+        value = value.trim();
+        if (value.length){
+            const data = {
+                title: value,
+            };
+            const request = await fetch(`/api/v1/lists/${this.model.uid}/update-title`, {
+                method: "POST",
+                headers: new Headers({
+                    Accept: "application/json",
+                    Authorization: sessionStorage.getItem("uid"),
+                    "Content-Type": "application/json",
+                }),
+                body: JSON.stringify(data),
+            });
+            const response = await request.json();
+            if (request.ok && response.success){
+                await idb.addList(response.data);
+            }
+        }
+    }
+
+    private debounceTitleInput = debounce(this.updateTitle.bind(this), 600, false);
+    private handleTitleInput:EventListener = (e:Event) => {
+        const target = e.currentTarget as HTMLInputElement;
+        this.debounceTitleInput(target.value);
+    }
+
     connected(){
         this.inboxId = subscribe("data-sync", this.inbox.bind(this));
     }
@@ -97,7 +126,7 @@ export default class List extends SuperComponent<ListState>{
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
                             </svg>
                         </a>
-                        <input class="title-input" type="text" value="${this.model.name}">
+                        <input @input=${this.handleTitleInput} class="title-input" type="text" value="${this.model.name}">
                         <overflow-button class="ml-0.25">
                             <button>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

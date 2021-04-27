@@ -46,6 +46,14 @@ class ListManager {
             throw 404;
         }
     }
+    updateTitle(uid, newName){
+        if (uid in this.lists){
+            this.lists[uid].name = newName;
+            return this.lists[uid].getDetails();
+        } else {
+            throw 404;
+        }
+    }
 }
 const manager = new ListManager();
 
