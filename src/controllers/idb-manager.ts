@@ -72,7 +72,7 @@ class IDBManager {
 		}
 	}
 
-    public getLists(){
+    public getLists():Promise<Array<any>>{
         return new Promise((resolve) => {
             this.send("select", {
                 table: "lists",
@@ -98,9 +98,26 @@ class IDBManager {
         });
     }
 
+    public deleteList(uid){
+        return new Promise((resolve) => {
+            this.send("delete", {
+                table: "lists",
+                key: uid,
+            }, resolve);
+        });
+    }
+
     public async handleOP(operation){
         const { op, table, key, value, keypath } = operation;
         switch (op){
+            case "DELETE":
+                await new Promise(resolve => {
+                    this.send("delete", {
+                        table: table,
+                        key: key,
+                    }, resolve);
+                });
+                break;
             case "INSERT":
                 await new Promise(resolve => {
                     this.send("put", {
@@ -113,7 +130,6 @@ class IDBManager {
                 console.warn(`Unhandled OP type: ${op}`);
                 break;
         }
-        console.log("handle op");
         publish("data-sync", key);
     }
 }

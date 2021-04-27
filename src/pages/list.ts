@@ -38,9 +38,27 @@ export default class List extends SuperComponent<ListState>{
 
     private async inbox(data){
         if (data === this.model.uid){
-            console.log("update");
             const updatedList = await idb.getList(this.model.uid);
-            this.update(updatedList);
+            if (updatedList === null){
+                navigateTo("/lists");
+            } else {
+                this.update(updatedList);
+            }
+        }
+    }
+
+    private deleteList:EventListener = async (e:Event) => {
+        const request = await fetch(`/api/v1/lists/${this.model.uid}`, {
+            method: "DELETE",
+            headers: new Headers({
+                Accept: "application/json",
+                Authorization: sessionStorage.getItem("uid"),
+            }),
+        });
+        const response = await request.json();
+        if (request.ok && response.success){
+            await idb.deleteList(this.model.uid);
+            navigateTo("/lists");
         }
     }
 
@@ -73,7 +91,7 @@ export default class List extends SuperComponent<ListState>{
                             </button>
                             <overflow-menu>
                                 <button>Make Public</button>
-                                <button color="danger">
+                                <button color="danger" @click=${this.deleteList}>
                                     Delete List
                                 </button>
                             </overflow-menu>

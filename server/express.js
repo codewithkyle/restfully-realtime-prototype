@@ -42,8 +42,8 @@ app.put('/api/v1/lists', async (req, res) => {
     try {
         const userId = req.get("authorization");
         const name = req.body.name;
-        const listUid = ListManager.createList(userId, name);
-        const list = ListManager.lookupList(listUid);
+        const listUid = ListManager.create(userId, name);
+        const list = ListManager.lookup(listUid);
         CommandCenter.op({
             op: "INSERT",
             table: "lists",
@@ -61,11 +61,17 @@ app.put('/api/v1/lists', async (req, res) => {
     }
 });
 
-app.get('/api/v1/lists/:uid', async (req, res) => {
+app.delete('/api/v1/lists/:uid', async (req, res) => {
     try {
         const userId = req.get("authorization");
-        const project = ListManager.lookupList(req.params.uid);
-        return res.status(200).json(buildSuccessResponse(project));
+        const list = ListManager.verifyAccess(req.params.uid, userId);
+        ListManager.deleteList(list.uid);
+        CommandCenter.op({
+            op: "DELETE",
+            table: "lists",
+            key: list.uid,
+        });
+        return res.status(200).json(buildSuccessResponse());
     } catch (status) {
         switch (status){
             case 404:

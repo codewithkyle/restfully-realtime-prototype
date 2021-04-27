@@ -11,6 +11,11 @@ class IDBWorker {
     private inbox(e:MessageEvent){
         const { type, uid, data } = e.data;
         switch (type){
+            case "delete":
+                this.delete(data).then(() => {
+                    this.send("response", null, uid);
+                });
+                break;
             case "get":
                 this.get(data).then(output => {
                     this.send("response", output, uid);
@@ -47,6 +52,10 @@ class IDBWorker {
 			self.postMessage(message);
 		}
 	}
+
+    private async delete(settings){
+        await this.db.delete(settings.table, settings.key);
+    }
 
     private async select(settings){
         const lists = await this.db.getAll(settings.table);

@@ -4,16 +4,24 @@ class ListManager {
     constructor(){
         this.lists = {};
     }
-    createList(userId, name){
+    create(userId, name){
         const uid = uuid();
         this.lists[uid] = new List(uid, userId, name);
         return uid;
     }
-    lookupList(uid){
+    lookup(uid){
         if (uid in this.lists){
             return this.lists[uid].getDetails();
         } else {
             throw 404;
+        }
+    }
+    verifyAccess(uid, userId){
+        const list = this.lookup(uid);
+        if (list.author === userId || list.public){
+            return list;
+        } else {
+            throw 401;
         }
     }
     getLists(){
@@ -22,6 +30,13 @@ class ListManager {
             out.push(this.lists[key].getDetails());
         }
         return out;
+    }
+    deleteList(uid){
+        if (uid in this.lists){
+            this.lists[uid].delete();
+        } else {
+            throw 404;
+        }
     }
 }
 const manager = new ListManager();
@@ -33,6 +48,7 @@ class List {
         this.name = name;
         this.items = [];
         this.public = false;
+        this.deleted = false;
     }
     getDetails(){
         return {
@@ -41,7 +57,11 @@ class List {
             name: this.name,
             items: this.items,
             public: this.public,
+            deleted: this.deleted,
         };
+    }
+    delete(){
+        this.deleted = true;
     }
 };
 module.exports = manager;

@@ -1,16 +1,28 @@
 import { html, render } from "lit-html";
 import { navigateTo } from "@codewithkyle/router";
 import idb from "../controllers/idb-manager";
+import SuperComponent from "@codewithkyle/supercomponent";
+import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
 
-export default class ListBrowser extends HTMLElement{
+type ListBrowserState = {
+    lists: Array<any>,
+};
+export default class ListBrowser extends SuperComponent<ListBrowserState>{
+    private inboxId: string;
+
     constructor(){
         super();
+        this.model = {
+            lists: [],
+        };
         this.init();
     }
 
     private async init(){
         const lists = await idb.getLists();
-        this.render(lists);
+        this.update({
+            lists: lists,
+        });
     }
 
     private createList:EventListener = async (e:Event) => {
@@ -37,12 +49,38 @@ export default class ListBrowser extends HTMLElement{
         }
     }
 
-    private render(lists){
+    private async inbox(){
+        const lists = await idb.getLists();
+        this.update({
+            lists: lists,
+        });
+    }
+
+    connected(){
+        this.inboxId = subscribe("data-sync", this.inbox.bind(this));
+    }
+
+    disconnected(){
+        if (this.inboxId){
+            unsubscribe(this.inboxId, "data-sync");
+        }
+    }
+
+    render(){
+        const validLists = [];
+        for (let i = 0; i < this.model.lists.length; i++){
+            if (!this.model.lists[i].deleted){
+                validLists.push(this.model.lists[i]);
+            }
+        }
         const view = html`
             <div class="w-full h-full" flex="items-center justify-center">
                 <div class="w-mobile max-w-full mt-4 mx-auto radius-0.5 bg-white shadow-sm p-1">
                     <h1 class="block w-full font-grey-800 font-lg mb-1 font-bold text-center">Lists</h1>
-                    ${lists?.length ? lists.map(list => {
+                    ${validLists.length ? validLists.map(list => {
+                        if (list.deleted){
+                            return;
+                        }
                         return html`
                             <a href="/lists/${list.uid}" class="radius-0.5 w-full px-1 mb-1 font-grey-800 bg-grey-100 border-1 border-solid border-grey-300" flex="items-center" style="height:48px">
                                 ${list.name}

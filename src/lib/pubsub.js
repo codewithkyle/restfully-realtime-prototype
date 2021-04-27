@@ -31,9 +31,6 @@ class EventBusController {
             }
         }
         delete this.subscriptions?.[ticket]?.[id];
-        if (Object.keys(this.subscriptions?.[ticket])?.length === 0) {
-            delete this.subscriptions[ticket];
-        }
     }
     publish(ticket, data) {
         for (const id in this.subscriptions?.[ticket]) {
