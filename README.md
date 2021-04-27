@@ -9,16 +9,15 @@ This prototype is designed to explore the effort it would take to add a real tim
 ## Roadmap
 
 - [x] Basic account creation
-- [x] Users can create products
-- [x] Users can create projects
-- [ ] Users can add products to projects
-- [ ] Users can change product quantities on a purhcase order
-- [ ] Sync project model (product quantity) changes with all connected users
+- [x] Users can create lists
+- [ ] Users can add/update items to a list
+- [ ] Users can update the list name
+- [ ] Users can delete a list they created
+- [ ] Users can make a list publicly editable
+- [ ] Users can rearrange list items
 
 ### Bonus
 
-- [ ] Store information in IDB
-- [ ] Keep all products and projects in sync
 - [ ] Add persistance with [Prisma](https://www.prisma.io/)
 - [ ] Implement [Firebase Auth](https://firebase.google.com/)
 
