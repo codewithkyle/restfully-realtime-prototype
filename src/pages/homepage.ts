@@ -25,7 +25,7 @@ export default class Homepage extends HTMLElement{
     }
 
     private createList:EventListener = async (e:Event) => {
-        const name = prompt("New project name:");
+        const name = prompt("List name:");
         if (!name){
             return;
         }
@@ -53,7 +53,7 @@ export default class Homepage extends HTMLElement{
             <div class="w-full h-full" flex="items-center justify-center">
                 <div class="block p-1 bg-white radius-0.5 shadow-md w-mobile max-w-full" grid="columns 2 gap-1">
                     <a href="/lists" class="bttn" kind="solid" color="primary" shape="rounded">View Lists</a>
-                    <button @click=${this.createList} class="bttn" kind="solid" color="primary" shape="rounded">Create List</button>
+                    <button @click=${this.createList} class="bttn" kind="solid" color="success" shape="rounded">Create List</button>
                 </div>
             </div>
         `;

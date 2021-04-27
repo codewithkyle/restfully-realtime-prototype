@@ -32,6 +32,7 @@ class List {
         this.author = authorId;
         this.name = name;
         this.items = [];
+        this.public = false;
     }
     getDetails(){
         return {
@@ -39,6 +40,7 @@ class List {
             author: this.author,
             name: this.name,
             items: this.items,
+            public: this.public,
         };
     }
 };
