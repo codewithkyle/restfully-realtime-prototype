@@ -54,6 +54,34 @@ class ListManager {
             throw 404;
         }
     }
+    addItem(uid, value){
+        if (uid in this.lists){
+            const itemUid = uuid();
+            this.lists[uid].addItem(value, itemUid);
+            return {
+                updatedList: this.lists[uid].getDetails(),
+                uid: itemUid,
+            };
+        } else {
+            throw 404;
+        }
+    }
+    removeItem(uid, itemId){
+        if (uid in this.lists){
+            this.lists[uid].removeItem(itemId);
+            return this.lists[uid].getDetails();
+        } else {
+            throw 404;
+        }
+    }
+    updateLineItem(uid, itemId, value){
+        if (uid in this.lists){
+            this.lists[uid].updateItem(itemId, value);
+            return this.lists[uid].getDetails();
+        } else {
+            throw 404;
+        }
+    }
 }
 const manager = new ListManager();
 
@@ -62,7 +90,7 @@ class List {
         this.uid = uid;
         this.author = authorId;
         this.name = name;
-        this.items = [];
+        this.items = {};
         this.public = false;
     }
     getDetails(){
@@ -79,6 +107,17 @@ class List {
             this.public = false;
         } else {
             this.public = true;
+        }
+    }
+    addItem(value, uid){
+        this.items[uid] = value;
+    }
+    removeItem(uid){
+        delete this.items[uid];
+    }
+    updateItem(uid, value){
+        if (uid in this.items){
+            this.items[uid] = value;
         }
     }
 };

@@ -25,4 +25,100 @@ list-component{
             box-shadow: 0 0 0 5px var(--primary-100);
         }
     }
+
+    .line-item{
+        min-height: 36px;
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+        flex-flow: row nowrap;
+        position: relative;
+        padding: 0 36px;
+
+        &:focus-within{
+            textarea,
+            button{
+                border-color: var(--grey-400);
+            }
+        }
+
+        textarea{
+            color: var(--grey-800);
+            padding: 0 0.5rem;
+            min-height: 36px;
+            width: 100%;
+            flex: 1;
+            border-width: 1px 0 1px 0;
+            border-style: solid;
+            border-color: var(--grey-300);
+            line-height: 1.375;
+            resize: none;
+            font-size: var(--font-sm);
+            padding: 0.5rem;
+            overflow: hidden;
+        }
+
+        button{
+            width: 36px;
+            height: 100%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            border-style: solid;
+            border-color: var(--grey-300);
+            color: var(--grey-700);
+            transition: all 150ms var(--ease-in-out);
+            position: absolute;
+            top: 0;
+            
+            &:first-of-type{
+                border-radius: 0.25rem 0 0 0.25rem;
+                border-width: 1px 0 1px 1px;
+                cursor: grab;
+                left: 0;
+            }
+
+            &:last-of-type{
+                border-radius: 0 0.25rem 0.25rem 0;
+                border-width: 1px;
+                right: 0;
+
+                &::before{
+                    background-color: var(--danger-500);
+                    content: "";
+                    display: inline-block;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    opacity: 0;
+                    transition: all 150ms var(--ease-in-out);
+                }
+
+                &:hover,
+                &:focus-visible{
+                    color: var(--danger-800);
+
+                    &::before{
+                        opacity: 0.07;
+                    }
+                }
+
+                &:active{
+                    color: var(--danger-800);
+
+                    &::before{
+                        opacity: 0.15;
+                    }
+                }
+            }
+
+            svg{
+                width: 16px;
+                height: 16px;
+            }
+        }
+    }
 }

@@ -7,7 +7,7 @@ import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
 import debounce from "../utils/debounce";
 
 type ListState = {
-    items: Array<any>,
+    items: any,
     uid: string,
     author: string,
     name: string,
@@ -19,7 +19,7 @@ export default class List extends SuperComponent<ListState>{
     constructor(tokens, params){
         super();
         this.model = {
-            items: [],
+            items: {},
             uid: null,
             author: null,
             name: null,
@@ -106,6 +106,73 @@ export default class List extends SuperComponent<ListState>{
         this.debounceTitleInput(target.value);
     }
 
+    private async updateLineItem(target:HTMLTextAreaElement){
+        const value = target.value.trim();
+        const data = {
+            value: value,
+        };
+        const request = await fetch(`/api/v1/lists/${this.model.uid}/items/${target.dataset.uid}`, {
+            method: "POST",
+            headers: new Headers({
+                Accept: "application/json",
+                Authorization: sessionStorage.getItem("uid"),
+                "Content-Type": "application/json",
+            }),
+            body: JSON.stringify(data),
+        });
+        const response = await request.json();
+        if (request.ok && response.success){
+            await idb.addList(response.data);
+            target.style.height = `${target.scrollHeight}px`;
+        }
+    }
+    private debounceLineItemInput = debounce(this.updateLineItem.bind(this), 600, false);
+    private handleLineItemInput: EventListener = (e:Event) => {
+        const target = e.currentTarget as HTMLInputElement;
+        this.debounceLineItemInput(target);
+    }
+
+    private addItem:EventListener = async (e:Event) => {
+        const value = prompt("New list item:");
+        if (!value){
+            return;
+        }
+        const data = {
+            value: value,
+        };
+        const request = await fetch(`/api/v1/lists/${this.model.uid}/items`, {
+            method: "PUT",
+            headers: new Headers({
+                Accept: "application/json",
+                Authorization: sessionStorage.getItem("uid"),
+                "Content-Type": "application/json",
+            }),
+            body: JSON.stringify(data),
+        });
+        const response = await request.json();
+        if (response.success){
+            await idb.addList(response.data);
+            this.update(response.data);
+        }
+    }
+
+    private deleteItem:EventListener = async (e:Event) => {
+        const target = e.currentTarget as HTMLElement;
+        const request = await fetch(`/api/v1/lists/${this.model.uid}/items/${target.dataset.uid}`, {
+            method: "DELETE",
+            headers: new Headers({
+                Accept: "application/json",
+                Authorization: sessionStorage.getItem("uid"),
+                "Content-Type": "application/json",
+            }),
+        });
+        const response = await request.json();
+        if (response.success){
+            await idb.addList(response.data);
+            this.update(response.data);
+        }
+    }
+
     connected(){
         this.inboxId = subscribe("data-sync", this.inbox.bind(this));
     }
@@ -120,7 +187,7 @@ export default class List extends SuperComponent<ListState>{
         const view = html`
             <div class="w-full h-full" flex="items-center justify-center">
                 <div class="block px-0.5 py-0.75 bg-white radius-0.5 shadow-md w-mobile max-w-full">
-                    <div class="w-full" flex="items-center row nowrap">
+                    <div class="w-full mb-1" flex="items-center row nowrap">
                         <a href="/lists" class="bttn mr-0.25" icon="center" kind="text" color="grey" shape="round">
                             <svg style="width:20px;height:20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
@@ -143,16 +210,30 @@ export default class List extends SuperComponent<ListState>{
                             </overflow-menu>
                         </overflow-button>
                     </div>
-                    ${this.model.items.map(item => {
+                    ${Object.keys(this.model.items).map(key => {
                         return html`
-                            <div class="block w-full font-grey-800 mt-1 px-1 bg-grey-100 border-1 border-solid border-grey-300 radius-0.25" flex="row nowrap items-center" style="height:36px;" data-uid="${item.uid}">
-                                ${item.name}
+                            <div class="line-item">
+                                <button data-uid="${key}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                                    </svg>
+                                </button>
+                                <textarea data-uid="${key}" @input=${this.handleLineItemInput}>${this.model.items[key]}</textarea>
+                                <button @click=${this.deleteItem} data-uid="${key}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
                             </div>
                         `;
                     })}
+                    <button @click=${this.addItem} class="bttn w-full ${Object.keys(this.model.items).length ? "mt-1" : ""}" kind="text" color="grey" shape="rounded">Add Item</button>
                 </div>
             </div>
         `;
         render(view, this);
+        this.querySelectorAll("textarea").forEach(el => {
+            el.style.height = `${el.scrollHeight}px`;
+        });
     }
 }

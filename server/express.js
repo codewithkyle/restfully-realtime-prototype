@@ -135,6 +135,82 @@ app.post('/api/v1/lists/:uid/update-title', async (req, res) => {
     }
 });
 
+app.put('/api/v1/lists/:listUid/items', async (req, res) => {
+    try {
+        const userId = req.get("authorization");
+        const list = ListManager.verifyAccess(req.params.listUid, userId);
+        const { updatedList, uid } = ListManager.addItem(list.uid, req.body.value);
+        CommandCenter.op({
+            op: "SET",
+            table: "lists",
+            key: list.uid,
+            keypath: `items::${uid}`,
+            value: updatedList.items[uid],
+        });
+        return res.status(200).json(buildSuccessResponse(list));
+    } catch (status) {
+        switch (status){
+            case 404:
+                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+            case 401:
+                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+            default:
+                return res.status(500).json(buildErrorResponse(status));
+        }
+    }
+});
+
+app.delete('/api/v1/lists/:listUid/items/:itemUid', async (req, res) => {
+    try {
+        const userId = req.get("authorization");
+        let list = ListManager.verifyAccess(req.params.listUid, userId);
+        const tombstone =  list.items[req.params.itemUid];
+        list = ListManager.removeItem(list.uid, req.params.itemUid);
+        CommandCenter.op({
+            op: "UNSET",
+            table: "lists",
+            key: list.uid,
+            keypath: `items::${req.params.itemUid}`,
+            tombstone: tombstone,
+        });
+        return res.status(200).json(buildSuccessResponse(list));
+    } catch (status) {
+        switch (status){
+            case 404:
+                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+            case 401:
+                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+            default:
+                return res.status(500).json(buildErrorResponse(status));
+        }
+    }
+});
+
+app.post('/api/v1/lists/:listUid/items/:itemUid', async (req, res) => {
+    try {
+        const userId = req.get("authorization");
+        let list = ListManager.verifyAccess(req.params.listUid, userId);
+        list = ListManager.updateLineItem(list.uid, req.params.itemUid, req.body.value);
+        CommandCenter.op({
+            op: "SET",
+            table: "lists",
+            key: list.uid,
+            keypath: `items::${req.params.itemUid}`,
+            value: req.body.value,
+        });
+        return res.status(200).json(buildSuccessResponse(list));
+    } catch (status) {
+        switch (status){
+            case 404:
+                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+            case 401:
+                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+            default:
+                return res.status(500).json(buildErrorResponse(status));
+        }
+    }
+});
+
 app.get("/*", async (req, res) => {
     return res.sendFile(path.join(cwd, "public", "index.html"));
 });
