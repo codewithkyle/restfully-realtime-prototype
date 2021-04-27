@@ -70,6 +70,7 @@ app.delete('/api/v1/lists/:uid', async (req, res) => {
             op: "DELETE",
             table: "lists",
             key: list.uid,
+            tombstone: list,
         });
         return res.status(200).json(buildSuccessResponse());
     } catch (status) {

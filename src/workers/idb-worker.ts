@@ -58,11 +58,11 @@ class IDBWorker {
 		}
 	}
 
-    private findKeyViaKeypath(object, keypath, value){
+    private setValueFromKeypath(object, keypath, value){
         const key = keypath[0];
         keypath.splice(0, 1);
         if (keypath.length){
-            this.findKeyViaKeypath(object[key], keypath, value);
+            this.setValueFromKeypath(object[key], keypath, value);
         } else {
             object[key] = value;
         }
@@ -72,7 +72,7 @@ class IDBWorker {
         const keypath = settings.keypath.split("::");
         const data = await this.db.get(settings.table, settings.key);
         if (data){
-            this.findKeyViaKeypath(data, keypath, settings.value);
+            this.setValueFromKeypath(data, keypath, settings.value);
             await this.db.put(settings.table, data);
         }
     }
@@ -107,6 +107,7 @@ class IDBWorker {
                 listsStore.createIndex("name", "name", { unique: false });
                 listsStore.createIndex("author", "author", { unique: false });
                 listsStore.createIndex("items", "items", { unique: false });
+                listsStore.createIndex("public", "public", { unique: false });
             }
         });
         const request = await fetch("/api/v1/lists", {

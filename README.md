@@ -10,16 +10,19 @@ This prototype is designed to explore the effort it would take to add a real tim
 
 - [x] Basic account creation
 - [x] Users can create lists
-- [ ] Users can add/update items to a list
 - [ ] Users can update the list name
 - [x] Users can delete a list they created
 - [x] Users can make a list publicly editable
+- [ ] Users can add/update items to a list
 - [ ] Users can rearrange list items
+- [ ] Offline support
+- [ ] Add toaster notifications
+- [ ] Switch to NDJSON stream
 
 ### Bonus
 
-- [ ] Add persistance with [Prisma](https://www.prisma.io/)
 - [ ] Implement [Firebase Auth](https://firebase.google.com/)
+- [ ] Add persistance with [Prisma](https://www.prisma.io/)
 
 ## Postmortem
 

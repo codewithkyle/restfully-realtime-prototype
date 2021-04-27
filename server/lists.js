@@ -33,7 +33,7 @@ class ListManager {
     }
     deleteList(uid){
         if (uid in this.lists){
-            this.lists[uid].delete();
+            delete this.lists[uid];
         } else {
             throw 404;
         }
@@ -56,7 +56,6 @@ class List {
         this.name = name;
         this.items = [];
         this.public = false;
-        this.deleted = false;
     }
     getDetails(){
         return {
@@ -65,11 +64,7 @@ class List {
             name: this.name,
             items: this.items,
             public: this.public,
-            deleted: this.deleted,
         };
-    }
-    delete(){
-        this.deleted = true;
     }
     toggle(){
         if (this.public){
