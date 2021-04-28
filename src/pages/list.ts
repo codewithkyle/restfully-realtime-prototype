@@ -54,20 +54,9 @@ export default class List extends SuperComponent<ListState>{
             const keypath = operation?.keypath?.split("::") ?? [];
             switch (operation.op){
                 case "UNSET":
-                    if (keypath?.[0] === "items"){
-                        const item = this.querySelector(`[data-uid="${keypath[1]}"]`) as ListItem;
-                        if (item){
-                            item.unset(keypath.splice(2, keypath.length - 1));
-                        } else {
-                            const updated = {...this.model};
-                            unsetValueFromKeypath(updated, keypath);
-                            this.update(updated);
-                        }
-                    } else {
-                        const updated = {...this.model};
-                        unsetValueFromKeypath(updated, keypath);
-                        this.update(updated);
-                    }
+                    const updated = {...this.model};
+                    unsetValueFromKeypath(updated, keypath);
+                    this.update(updated);
                     break;
                 case "SET":
                     if (keypath?.[0] === "items"){
@@ -82,7 +71,6 @@ export default class List extends SuperComponent<ListState>{
                     } else {
                         const updated = {...this.model};
                         setValueFromKeypath(updated, keypath, operation.value);
-                        console.log(updated);
                         this.update(updated);
                     }
                     break;
@@ -110,7 +98,6 @@ export default class List extends SuperComponent<ListState>{
         });
         const response = await request.json();
         if (request.ok && response.success){
-            await idb.deleteList(this.model.uid);
             navigateTo("/lists");
         }
     }
@@ -123,11 +110,6 @@ export default class List extends SuperComponent<ListState>{
                 Authorization: localStorage.getItem("uid"),
             }),
         });
-        const response = await request.json();
-        if (request.ok && response.success){
-            await idb.addList(response.data);
-            this.update(response.data);
-        }
     }
 
     private focusAddButton(){
@@ -154,10 +136,6 @@ export default class List extends SuperComponent<ListState>{
                 }),
                 body: JSON.stringify(data),
             });
-            const response = await request.json();
-            if (request.ok && response.success){
-                await idb.addList(response.data);
-            }
         }
     }
     private debounceTitleInput = debounce(this.updateTitle.bind(this), 600, false);
@@ -183,12 +161,7 @@ export default class List extends SuperComponent<ListState>{
             }),
             body: JSON.stringify(data),
         });
-        const response = await request.json();
-        if (response.success){
-            await idb.addList(response.data);
-            this.update(response.data);
-            this.focusAddButton();
-        }
+        this.focusAddButton();
     }
 
     connected(){
@@ -211,7 +184,7 @@ export default class List extends SuperComponent<ListState>{
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
                             </svg>
                         </a>
-                        <input @input=${this.handleTitleInput} class="title-input" type="text" value="${this.model.name}">
+                        <input @input=${this.handleTitleInput} class="title-input" type="text" .value="${this.model.name}" title="${this.model.name}">
                         <overflow-button class="ml-0.25">
                             <button>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

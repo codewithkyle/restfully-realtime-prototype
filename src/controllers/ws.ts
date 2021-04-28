@@ -7,5 +7,6 @@ socket.addEventListener('message', (event) => {
         idb.handleOP(data);
     } catch (e) {
         console.error(e);
+        console.log(event.data);
     }
 });

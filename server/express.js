@@ -71,7 +71,7 @@ app.delete('/api/v1/lists/:listUid', async (req, res) => {
         CommandCenter.op({
             op: "DELETE",
             table: "lists",
-            key: list.uid,
+            key: listUid,
             tombstone: list,
         });
         return res.status(200).json(buildSuccessResponse());
@@ -91,12 +91,11 @@ app.post('/api/v1/lists/:listUid/toggle', async (req, res) => {
     try {
         const { listUid } = req.params;
         const userId = req.get("authorization");
-        let list = ListManager.verifyAccess(listUid, userId);
-        list = ListManager.toggle(listUid);
+        const list = ListManager.toggle(listUid);
         CommandCenter.op({
             op: "SET",
             table: "lists",
-            key: list.uid,
+            key: listUid,
             keypath: "public",
             value: list.public,
         });
@@ -118,9 +117,14 @@ app.post('/api/v1/lists/:listUid/update-title', async (req, res) => {
         const { listUid } = req.params;
         const { title } = req.body;
         const userId = req.get("authorization");
-        const current = clone(ListManager.verifyAccess(listUid, userId));
         const updated = ListManager.updateTitle(listUid, title);
-        CommandCenter.op(generate(current, updated, "lists", listUid));
+        CommandCenter.op({
+            table: "lists",
+            key: listUid,
+            op: "SET",
+            keypath: `name`,
+            value: title,
+        });
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
         switch (status){
@@ -159,9 +163,13 @@ app.delete('/api/v1/lists/:listUid/items/:itemUid', async (req, res) => {
     try {
         const { listUid, itemUid } = req.params;
         const userId = req.get("authorization");
-        const current = clone(ListManager.verifyAccess(listUid, userId));
         const updated = ListManager.removeItem(listUid, itemUid);
-        CommandCenter.op(generate(current, updated, "lists", listUid));
+        CommandCenter.op({
+            table: "lists",
+            key: listUid,
+            op: "UNSET",
+            keypath: `items::${itemUid}`,
+        });
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
         switch (status){
@@ -180,9 +188,14 @@ app.post('/api/v1/lists/:listUid/items/:itemUid/update', async (req, res) => {
         const { listUid, itemUid } = req.params;
         const { value } = req.body;
         const userId = req.get("authorization");
-        const current = clone(ListManager.verifyAccess(listUid, userId));
         const updated = ListManager.updateLineItem(listUid, itemUid, value);
-        CommandCenter.op(generate(current, updated, "lists", listUid));
+        CommandCenter.op({
+            table: "lists",
+            key: listUid,
+            op: "SET",
+            keypath: `items::${itemUid}::value`,
+            value: value,
+        });
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
         switch (status){
@@ -201,9 +214,21 @@ app.post('/api/v1/lists/:listUid/items/:itemUid/move', async (req, res) => {
         const { listUid, itemUid } = req.params;
         const { hijackedItemId } = req.body;
         const userId = req.get("authorization");
-        const current = clone(ListManager.verifyAccess(listUid, userId));
         const updated = ListManager.moveLineItem(listUid, itemUid, hijackedItemId);
-        CommandCenter.op(generate(current, updated, "lists", listUid));
+        const op = {
+            op: "BATCH",
+            ops: []
+        };
+        for (const key in updated.items){
+            op.ops.push({
+                op: "SET",
+                table: "lists",
+                key: listUid,
+                keypath: `items::${key}::order`,
+                value: updated.items[key].order,
+            });
+        }
+        CommandCenter.op(op);
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
         switch (status){
