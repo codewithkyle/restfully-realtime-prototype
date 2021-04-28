@@ -58,10 +58,7 @@ class ListManager {
         if (uid in this.lists){
             const itemUid = uuid();
             this.lists[uid].addItem(value, itemUid);
-            return {
-                updatedList: this.lists[uid].getDetails(),
-                uid: itemUid,
-            };
+            return this.lists[uid].getDetails();
         } else {
             throw 404;
         }

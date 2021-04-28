@@ -14,4 +14,8 @@ function buildErrorResponse(error, data = null){
     };
 }
 
-module.exports = { buildSuccessResponse, buildErrorResponse };
+function clone(object){
+    return JSON.parse(JSON.stringify(object));
+}
+
+module.exports = { buildSuccessResponse, buildErrorResponse, clone };

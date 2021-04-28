@@ -53,7 +53,7 @@ export default class List extends SuperComponent<ListState>{
             method: "DELETE",
             headers: new Headers({
                 Accept: "application/json",
-                Authorization: sessionStorage.getItem("uid"),
+                Authorization: localStorage.getItem("uid"),
             }),
         });
         const response = await request.json();
@@ -68,7 +68,7 @@ export default class List extends SuperComponent<ListState>{
             method: "POST",
             headers: new Headers({
                 Accept: "application/json",
-                Authorization: sessionStorage.getItem("uid"),
+                Authorization: localStorage.getItem("uid"),
             }),
         });
         const response = await request.json();
@@ -88,7 +88,7 @@ export default class List extends SuperComponent<ListState>{
                 method: "POST",
                 headers: new Headers({
                     Accept: "application/json",
-                    Authorization: sessionStorage.getItem("uid"),
+                    Authorization: localStorage.getItem("uid"),
                     "Content-Type": "application/json",
                 }),
                 body: JSON.stringify(data),
@@ -115,7 +115,7 @@ export default class List extends SuperComponent<ListState>{
             method: "POST",
             headers: new Headers({
                 Accept: "application/json",
-                Authorization: sessionStorage.getItem("uid"),
+                Authorization: localStorage.getItem("uid"),
                 "Content-Type": "application/json",
             }),
             body: JSON.stringify(data),
@@ -144,7 +144,7 @@ export default class List extends SuperComponent<ListState>{
             method: "PUT",
             headers: new Headers({
                 Accept: "application/json",
-                Authorization: sessionStorage.getItem("uid"),
+                Authorization: localStorage.getItem("uid"),
                 "Content-Type": "application/json",
             }),
             body: JSON.stringify(data),
@@ -162,7 +162,7 @@ export default class List extends SuperComponent<ListState>{
             method: "DELETE",
             headers: new Headers({
                 Accept: "application/json",
-                Authorization: sessionStorage.getItem("uid"),
+                Authorization: localStorage.getItem("uid"),
                 "Content-Type": "application/json",
             }),
         });
@@ -186,7 +186,7 @@ export default class List extends SuperComponent<ListState>{
     render(){
         const view = html`
             <div class="w-full h-full" flex="items-center justify-center">
-                <div class="block px-0.5 py-0.75 bg-white radius-0.5 shadow-md w-mobile max-w-full">
+                <div class="block px-0.5 py-0.75 bg-white radius-0.5 shadow-md w-mobile max-w-full border-1 border-solid border-grey-300">
                     <div class="w-full mb-1" flex="items-center row nowrap">
                         <a href="/lists" class="bttn mr-0.25" icon="center" kind="text" color="grey" shape="round">
                             <svg style="width:20px;height:20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

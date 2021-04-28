@@ -9,10 +9,11 @@ httpServer.listen(5001);
 const path = require("path");
 const cwd = process.cwd();
 
-const { buildSuccessResponse, buildErrorResponse } = require("./utils");
+const { buildSuccessResponse, buildErrorResponse, clone } = require("./utils");
 const AccountManager = require("./accounts");
 const ListManager = require("./lists");
 const CommandCenter = require("./command-center");
+const generate = require("./diff");
 
 app.post('/api/v1/login', async (req, res) => {
     try {
@@ -41,7 +42,7 @@ app.get('/api/v1/lists', async (req, res) => {
 app.put('/api/v1/lists', async (req, res) => {
     try {
         const userId = req.get("authorization");
-        const name = req.body.name;
+        const { name } = req.body;
         const listUid = ListManager.create(userId, name);
         const list = ListManager.lookup(listUid);
         CommandCenter.op({
@@ -61,11 +62,12 @@ app.put('/api/v1/lists', async (req, res) => {
     }
 });
 
-app.delete('/api/v1/lists/:uid', async (req, res) => {
+app.delete('/api/v1/lists/:listUid', async (req, res) => {
     try {
+        const { listUid } = req.params;
         const userId = req.get("authorization");
-        const list = ListManager.verifyAccess(req.params.uid, userId);
-        ListManager.deleteList(list.uid);
+        const list = ListManager.verifyAccess(listUid, userId);
+        ListManager.deleteList(listUid);
         CommandCenter.op({
             op: "DELETE",
             table: "lists",
@@ -85,11 +87,12 @@ app.delete('/api/v1/lists/:uid', async (req, res) => {
     }
 });
 
-app.post('/api/v1/lists/:uid/toggle', async (req, res) => {
+app.post('/api/v1/lists/:listUid/toggle', async (req, res) => {
     try {
+        const { listUid } = req.params;
         const userId = req.get("authorization");
-        let list = ListManager.verifyAccess(req.params.uid, userId);
-        list = ListManager.toggle(list.uid);
+        let list = ListManager.verifyAccess(listUid, userId);
+        list = ListManager.toggle(listUid);
         CommandCenter.op({
             op: "SET",
             table: "lists",
@@ -110,19 +113,15 @@ app.post('/api/v1/lists/:uid/toggle', async (req, res) => {
     }
 });
 
-app.post('/api/v1/lists/:uid/update-title', async (req, res) => {
+app.post('/api/v1/lists/:listUid/update-title', async (req, res) => {
     try {
+        const { listUid } = req.params;
+        const { title } = req.body;
         const userId = req.get("authorization");
-        let list = ListManager.verifyAccess(req.params.uid, userId);
-        list = ListManager.updateTitle(list.uid, req.body.title);
-        CommandCenter.op({
-            op: "SET",
-            table: "lists",
-            key: list.uid,
-            keypath: "name",
-            value: list.name,
-        });
-        return res.status(200).json(buildSuccessResponse(list));
+        const current = clone(ListManager.verifyAccess(listUid, userId));
+        const updated = clone(ListManager.updateTitle(listUid, title));
+        CommandCenter.op(generate(current, updated, "lists", listUid));
+        return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
         switch (status){
             case 404:
@@ -137,17 +136,13 @@ app.post('/api/v1/lists/:uid/update-title', async (req, res) => {
 
 app.put('/api/v1/lists/:listUid/items', async (req, res) => {
     try {
+        const { listUid } = req.params;
+        const { value } = req.body;
         const userId = req.get("authorization");
-        const list = ListManager.verifyAccess(req.params.listUid, userId);
-        const { updatedList, uid } = ListManager.addItem(list.uid, req.body.value);
-        CommandCenter.op({
-            op: "SET",
-            table: "lists",
-            key: list.uid,
-            keypath: `items::${uid}`,
-            value: updatedList.items[uid],
-        });
-        return res.status(200).json(buildSuccessResponse(list));
+        const current = clone(ListManager.verifyAccess(listUid, userId));
+        const updated = clone(ListManager.addItem(listUid, value));
+        CommandCenter.op(generate(current, updated, "lists", listUid));
+        return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
         switch (status){
             case 404:
@@ -162,18 +157,12 @@ app.put('/api/v1/lists/:listUid/items', async (req, res) => {
 
 app.delete('/api/v1/lists/:listUid/items/:itemUid', async (req, res) => {
     try {
+        const { listUid, itemUid } = req.params;
         const userId = req.get("authorization");
-        let list = ListManager.verifyAccess(req.params.listUid, userId);
-        const tombstone =  list.items[req.params.itemUid];
-        list = ListManager.removeItem(list.uid, req.params.itemUid);
-        CommandCenter.op({
-            op: "UNSET",
-            table: "lists",
-            key: list.uid,
-            keypath: `items::${req.params.itemUid}`,
-            tombstone: tombstone,
-        });
-        return res.status(200).json(buildSuccessResponse(list));
+        const current = clone(ListManager.verifyAccess(listUid, userId));
+        const updated = clone(ListManager.removeItem(listUid, itemUid));
+        CommandCenter.op(generate(current, updated, "lists", listUid));
+        return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
         switch (status){
             case 404:
@@ -188,17 +177,13 @@ app.delete('/api/v1/lists/:listUid/items/:itemUid', async (req, res) => {
 
 app.post('/api/v1/lists/:listUid/items/:itemUid', async (req, res) => {
     try {
+        const { listUid, itemUid } = req.params;
+        const { value } = req.body;
         const userId = req.get("authorization");
-        let list = ListManager.verifyAccess(req.params.listUid, userId);
-        list = ListManager.updateLineItem(list.uid, req.params.itemUid, req.body.value);
-        CommandCenter.op({
-            op: "SET",
-            table: "lists",
-            key: list.uid,
-            keypath: `items::${req.params.itemUid}`,
-            value: req.body.value,
-        });
-        return res.status(200).json(buildSuccessResponse(list));
+        const current = clone(ListManager.verifyAccess(listUid, userId));
+        const updated = clone(ListManager.updateLineItem(listUid, itemUid, value));
+        CommandCenter.op(generate(current, updated, "lists", listUid));
+        return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
         switch (status){
             case 404:
