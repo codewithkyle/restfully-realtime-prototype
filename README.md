@@ -14,7 +14,7 @@ This prototype is designed to explore the effort it would take to add a real tim
 - [x] Users can delete a list they created
 - [x] Users can make a list publicly editable
 - [x] Users can add/update/delete list items
-- [ ] Users can rearrange list items
+- [x] Users can rearrange list items
 - [ ] Add toaster notifications
 - [ ] Offline support
 - [ ] Switch inital fetch to NDJSON stream
