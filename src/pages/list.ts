@@ -50,7 +50,6 @@ export default class List extends SuperComponent<ListState>{
 
     private async inbox(operation){
         if (operation.key === this.model.uid){
-            console.log(operation);
             const keypath = operation?.keypath?.split("::") ?? [];
             switch (operation.op){
                 case "UNSET":
