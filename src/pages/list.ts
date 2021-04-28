@@ -3,7 +3,7 @@ import { html, render } from "lit-html";
 import SuperComponent from "@codewithkyle/supercomponent";
 import css from "../utils/css";
 import { navigateTo } from "@codewithkyle/router";
-import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
+import { createSubscription, subscribe, unsubscribe } from "@codewithkyle/pubsub";
 import debounce from "../utils/debounce";
 
 import ListItem from "../components/list-item";
@@ -180,9 +180,11 @@ export default class List extends SuperComponent<ListState>{
                             </overflow-menu>
                         </overflow-button>
                     </div>
-                    ${Object.keys(this.model.items).map(key => {
-                        return new ListItem(key, this.model.items[key], this.model.uid);
-                    })}
+                    <div class="list">
+                        ${Object.keys(this.model.items).map(key => {
+                            return new ListItem(key, this.model.items[key].value, this.model.items[key].order, this.model.uid, this.update.bind(this));
+                        })}
+                    </div>
                     <button @click=${this.addItem} class="js-add bttn w-full mt-0.5" kind="text" color="grey" shape="rounded">Add Item</button>
                 </div>
             </div>

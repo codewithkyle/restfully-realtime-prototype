@@ -175,13 +175,34 @@ app.delete('/api/v1/lists/:listUid/items/:itemUid', async (req, res) => {
     }
 });
 
-app.post('/api/v1/lists/:listUid/items/:itemUid', async (req, res) => {
+app.post('/api/v1/lists/:listUid/items/:itemUid/update', async (req, res) => {
     try {
         const { listUid, itemUid } = req.params;
         const { value } = req.body;
         const userId = req.get("authorization");
         const current = clone(ListManager.verifyAccess(listUid, userId));
         const updated = ListManager.updateLineItem(listUid, itemUid, value);
+        CommandCenter.op(generate(current, updated, "lists", listUid));
+        return res.status(200).json(buildSuccessResponse(updated));
+    } catch (status) {
+        switch (status){
+            case 404:
+                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+            case 401:
+                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+            default:
+                return res.status(500).json(buildErrorResponse(status));
+        }
+    }
+});
+
+app.post('/api/v1/lists/:listUid/items/:itemUid/move', async (req, res) => {
+    try {
+        const { listUid, itemUid } = req.params;
+        const { hijackedItemId } = req.body;
+        const userId = req.get("authorization");
+        const current = clone(ListManager.verifyAccess(listUid, userId));
+        const updated = ListManager.moveLineItem(listUid, itemUid, hijackedItemId);
         CommandCenter.op(generate(current, updated, "lists", listUid));
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {

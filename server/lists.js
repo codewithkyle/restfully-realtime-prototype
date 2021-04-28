@@ -79,6 +79,14 @@ class ListManager {
             throw 404;
         }
     }
+    moveLineItem(uid, itemId, hijackedItemId){
+        if (uid in this.lists){
+            this.lists[uid].moveItem(itemId, hijackedItemId);
+            return this.lists[uid].getDetails();
+        } else {
+            throw 404;
+        }
+    }
 }
 const manager = new ListManager();
 
@@ -107,14 +115,47 @@ class List {
         }
     }
     addItem(value, uid){
-        this.items[uid] = value;
+        this.items[uid] = {
+            value: value,
+            order: Object.keys(this.items).length,
+        };
     }
     removeItem(uid){
         delete this.items[uid];
     }
     updateItem(uid, value){
         if (uid in this.items){
-            this.items[uid] = value;
+            this.items[uid] = Object.assign(this.items[uid], {
+                value: value,
+            });
+        }
+    }
+    moveItem(uid, hijackedItemId){
+        let newIndex = this.items[hijackedItemId].order;
+        if (newIndex >= Object.keys(this.items).length - 1){
+            newIndex = Object.keys(this.items).length;
+        } else if (newIndex === this.items[uid].order + 1){
+            newIndex = newIndex + 1;
+        } else if (newIndex < 0) {
+            newIndex = 0;
+        }
+        let items = [];
+        for (let i = 0; i < Object.keys(this.items).length; i++){
+            items.push(null);
+        }
+        for (const key in this.items){
+            if (key !== uid){
+                items.splice(this.items[key].order, 1, key);
+            }
+        }
+        items.splice(newIndex, 0, uid);
+        for (let i = items.length - 1; i >= 0; i--){
+            if (items[i] === null){
+                items.splice(i, 1);
+            }
+        }
+        for (let i = 0; i < items.length; i++){
+            this.items[items[i]].order = i;
         }
     }
 };

@@ -107,9 +107,18 @@ class IDBManager {
         });
     }
 
+    private async handleBatch(ops){
+        for (const op of ops){
+            await this.handleOP(op);
+        }
+    }
+
     public async handleOP(operation){
-        const { op, table, key, value, keypath } = operation;
+        const { op, ops, table, key, value, keypath } = operation;
         switch (op){
+            case "BATCH":
+                this.handleBatch(ops);
+                break;
             case "UNSET":
                 await new Promise(resolve => {
                     this.send("unset", {

@@ -2,25 +2,29 @@ import { html, render } from "lit-html";
 import debounce from "../utils/debounce";
 import idb from "../controllers/idb-manager";
 import SuperComponent from "@codewithkyle/supercomponent";
+import { publish } from "@codewithkyle/pubsub";
 
 type ListItemState = {
     uid: string;
     value: string;
     listUid: string;
+    order: number;
 };
 export default class ListItem extends SuperComponent<ListItemState>{
-    constructor(uid, value, listUid){
+    constructor(uid, value, order, listUid){
         super();
         this.model = {
             uid: uid,
             value: value,
             listUid: listUid,
+            order: order,
         };
         this.render();
     }
 
-    private startDrag:EventListener = (e) => {
+    private startDrag = (e:DragEvent) => {
         this.style.opacity = "0.3";
+        e.dataTransfer.setData("uid", this.model.uid);
     }
 
     private stopDrag:EventListener = (e:Event) => {
@@ -30,19 +34,34 @@ export default class ListItem extends SuperComponent<ListItemState>{
     private dragEnter:EventListener = (e:Event) => {
         e.preventDefault();
         this.classList.add("drop-highlight");
-        console.log("enter");
     }
 
     private dragLeave:EventListener = (e:Event) => {
         this.classList.remove("drop-highlight");
-        console.log("leave");
     }
 
-    private drop:EventListener = (e:Event) => {
+    private drop = async (e:DragEvent) => {
         e.preventDefault();
-        const dropTarget = e.currentTarget as HTMLElement;
         this.classList.remove("drop-highlight");
-        console.log(dropTarget.dataset.uid);
+        const data = {
+            hijackedItemId: this.model.uid,
+        };
+        const targetUid = e.dataTransfer.getData("uid");
+        const request = await fetch(`/api/v1/lists/${this.model.listUid}/items/${targetUid}/move`, {
+            method: "POST",
+            headers: new Headers({
+                Accept: "application/json",
+                Authorization: localStorage.getItem("uid"),
+                "Content-Type": "application/json",
+            }),
+            body: JSON.stringify(data),
+        });
+        const response = await request.json();
+        if (request.ok && response.success){
+            await idb.addList(response.data);
+            // @ts-ignore
+            this.closest("list-component").update(response.data);
+        }
     }
 
     private deleteItem:EventListener = async (e:Event) => {
@@ -66,7 +85,7 @@ export default class ListItem extends SuperComponent<ListItemState>{
         const data = {
             value: value,
         };
-        const request = await fetch(`/api/v1/lists/${this.model.listUid}/items/${this.model.uid}`, {
+        const request = await fetch(`/api/v1/lists/${this.model.listUid}/items/${this.model.uid}/update`, {
             method: "POST",
             headers: new Headers({
                 Accept: "application/json",
@@ -109,5 +128,6 @@ export default class ListItem extends SuperComponent<ListItemState>{
             </button>
         `;
         render(view, this);
+        this.style.order = `${this.model.order}`;
     }
 }

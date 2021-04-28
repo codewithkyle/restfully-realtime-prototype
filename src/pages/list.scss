@@ -25,4 +25,11 @@ list-component{
             box-shadow: 0 0 0 5px var(--primary-100);
         }
     }
+
+    .list{
+        display: flex;
+        flex-flow: column wrap;
+        width: 100%;
+        position: relative;
+    }
 }
