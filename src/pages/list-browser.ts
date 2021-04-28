@@ -78,7 +78,7 @@ export default class ListBrowser extends SuperComponent<ListBrowserState>{
         }
         const view = html`
             <div class="w-full h-full" flex="items-center justify-center">
-                <div class="w-mobile max-w-full mt-4 mx-auto radius-0.5 bg-white shadow-sm p-1 border-1 border-solid border-grey-300">
+                <div class="w-mobile max-w-full mt-4 mx-auto radius-0.5 bg-white shadow-sm p-1 border-1 border-solid border-grey-300" style="max-height: calc(100vh - 2rem);overflow-y: auto;">
                     <h1 class="block w-full font-grey-800 font-lg mb-1 font-bold text-center">Lists</h1>
                     ${validLists.length ? validLists.map(list => {
                         if (list.deleted){

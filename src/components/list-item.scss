@@ -1,24 +1,23 @@
 list-item{
-    min-height: 36px;
+    height: 36px;
     display: flex;
     width: 100%;
     align-items: center;
     justify-content: space-between;
     flex-flow: row nowrap;
     position: relative;
-    padding: 0 36px;
     margin-top: 0.5rem;
     border-radius: 0.25rem;
 
     &:hover{
-        textarea,
+        input,
         button{
             border-color: var(--grey-400);
         }
     }
 
     &:focus-within{
-        textarea,
+        input,
         button{
             border-color: var(--grey-500);
         }
@@ -32,31 +31,31 @@ list-item{
     &.drop-highlight{
         box-shadow: 0 0 0 5px var(--primary-100);
 
-        textarea,
+        input,
         button{
             border-color: var(--primary-400);
         }
     }
 
-    textarea{
+    input{
         color: var(--grey-800);
         padding: 0 0.5rem;
-        min-height: 36px;
+        line-height: 1;
+        height: 36px;
         width: 100%;
         flex: 1;
         border-width: 1px 0 1px 0;
         border-style: solid;
         border-color: var(--grey-300);
-        line-height: 1.375;
-        resize: none;
         font-size: var(--font-sm);
         padding: 0.5rem;
         overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     button{
         width: 36px;
-        height: 100%;
+        height: 36px;
         display: inline-flex;
         justify-content: center;
         align-items: center;
@@ -64,20 +63,16 @@ list-item{
         border-color: var(--grey-300);
         color: var(--grey-700);
         transition: all 150ms var(--ease-in-out);
-        position: absolute;
-        top: 0;
         
         &:first-of-type{
             border-radius: 0.25rem 0 0 0.25rem;
             border-width: 1px 0 1px 1px;
             cursor: grab;
-            left: 0;
         }
 
         &:last-of-type{
             border-radius: 0 0.25rem 0.25rem 0;
             border-width: 1px;
-            right: 0;
 
             &::before{
                 background-color: var(--danger-500);

@@ -156,7 +156,7 @@ export default class List extends SuperComponent<ListState>{
     render(){
         const view = html`
             <div class="w-full h-full" flex="items-center justify-center">
-                <div class="block px-0.5 py-0.75 bg-white radius-0.5 shadow-md w-mobile max-w-full border-1 border-solid border-grey-300">
+                <div class="block px-0.5 py-0.75 bg-white radius-0.5 shadow-md w-mobile max-w-full border-1 border-solid border-grey-300" style="max-height: calc(100vh - 2rem);overflow-y: auto;min-height:150px;">
                     <div class="w-full" flex="items-center row nowrap">
                         <a href="/lists" class="bttn mr-0.25" icon="center" kind="text" color="grey" shape="round">
                             <svg style="width:20px;height:20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
