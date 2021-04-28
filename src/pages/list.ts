@@ -187,7 +187,7 @@ export default class List extends SuperComponent<ListState>{
         const view = html`
             <div class="w-full h-full" flex="items-center justify-center">
                 <div class="block px-0.5 py-0.75 bg-white radius-0.5 shadow-md w-mobile max-w-full border-1 border-solid border-grey-300">
-                    <div class="w-full mb-1" flex="items-center row nowrap">
+                    <div class="w-full" flex="items-center row nowrap">
                         <a href="/lists" class="bttn mr-0.25" icon="center" kind="text" color="grey" shape="round">
                             <svg style="width:20px;height:20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
@@ -212,7 +212,7 @@ export default class List extends SuperComponent<ListState>{
                     </div>
                     ${Object.keys(this.model.items).map(key => {
                         return html`
-                            <div class="line-item">
+                            <div class="line-item mt-0.5">
                                 <button data-uid="${key}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
@@ -227,7 +227,7 @@ export default class List extends SuperComponent<ListState>{
                             </div>
                         `;
                     })}
-                    <button @click=${this.addItem} class="bttn w-full ${Object.keys(this.model.items).length ? "mt-1" : ""}" kind="text" color="grey" shape="rounded">Add Item</button>
+                    <button @click=${this.addItem} class="bttn w-full mt-0.5" kind="text" color="grey" shape="rounded">Add Item</button>
                 </div>
             </div>
         `;

@@ -12,6 +12,9 @@ export default class ListBrowser extends SuperComponent<ListBrowserState>{
 
     constructor(){
         super();
+        if (!localStorage.getItem("uid")){
+            navigateTo("/");
+        }
         this.model = {
             lists: [],
         };

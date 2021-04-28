@@ -119,7 +119,7 @@ app.post('/api/v1/lists/:listUid/update-title', async (req, res) => {
         const { title } = req.body;
         const userId = req.get("authorization");
         const current = clone(ListManager.verifyAccess(listUid, userId));
-        const updated = clone(ListManager.updateTitle(listUid, title));
+        const updated = ListManager.updateTitle(listUid, title);
         CommandCenter.op(generate(current, updated, "lists", listUid));
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
@@ -140,7 +140,7 @@ app.put('/api/v1/lists/:listUid/items', async (req, res) => {
         const { value } = req.body;
         const userId = req.get("authorization");
         const current = clone(ListManager.verifyAccess(listUid, userId));
-        const updated = clone(ListManager.addItem(listUid, value));
+        const updated = ListManager.addItem(listUid, value);
         CommandCenter.op(generate(current, updated, "lists", listUid));
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
@@ -160,7 +160,7 @@ app.delete('/api/v1/lists/:listUid/items/:itemUid', async (req, res) => {
         const { listUid, itemUid } = req.params;
         const userId = req.get("authorization");
         const current = clone(ListManager.verifyAccess(listUid, userId));
-        const updated = clone(ListManager.removeItem(listUid, itemUid));
+        const updated = ListManager.removeItem(listUid, itemUid);
         CommandCenter.op(generate(current, updated, "lists", listUid));
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
@@ -181,7 +181,7 @@ app.post('/api/v1/lists/:listUid/items/:itemUid', async (req, res) => {
         const { value } = req.body;
         const userId = req.get("authorization");
         const current = clone(ListManager.verifyAccess(listUid, userId));
-        const updated = clone(ListManager.updateLineItem(listUid, itemUid, value));
+        const updated = ListManager.updateLineItem(listUid, itemUid, value);
         CommandCenter.op(generate(current, updated, "lists", listUid));
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
