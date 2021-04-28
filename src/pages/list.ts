@@ -6,6 +6,9 @@ import { navigateTo } from "@codewithkyle/router";
 import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
 import debounce from "../utils/debounce";
 
+import ListItem from "../components/list-item";
+customElements.define("list-item", ListItem);
+
 type ListState = {
     items: any,
     uid: string,
@@ -29,12 +32,13 @@ export default class List extends SuperComponent<ListState>{
     }
 
     private async init(uid){
-        await css(["list", "overflow-menu"]);
+        await css(["list", "overflow-menu", "list-item"]);
         const list = await idb.getList(uid);
         if (!list){
             navigateTo("/lists");
         }
         this.update(list);
+        this.focusAddButton();
     }
 
     private async inbox(data){
@@ -78,6 +82,15 @@ export default class List extends SuperComponent<ListState>{
         }
     }
 
+    private focusAddButton(){
+        // @ts-ignore
+        document.activeElement?.blur();
+        const addBttn:HTMLButtonElement = document.body.querySelector(".js-add");
+        if (addBttn){
+            addBttn.focus();
+        }
+    }
+
     private async updateTitle(value){
         value = value.trim();
         if (value.length){
@@ -99,37 +112,10 @@ export default class List extends SuperComponent<ListState>{
             }
         }
     }
-
     private debounceTitleInput = debounce(this.updateTitle.bind(this), 600, false);
     private handleTitleInput:EventListener = (e:Event) => {
         const target = e.currentTarget as HTMLInputElement;
         this.debounceTitleInput(target.value);
-    }
-
-    private async updateLineItem(target:HTMLTextAreaElement){
-        const value = target.value.trim();
-        const data = {
-            value: value,
-        };
-        const request = await fetch(`/api/v1/lists/${this.model.uid}/items/${target.dataset.uid}`, {
-            method: "POST",
-            headers: new Headers({
-                Accept: "application/json",
-                Authorization: localStorage.getItem("uid"),
-                "Content-Type": "application/json",
-            }),
-            body: JSON.stringify(data),
-        });
-        const response = await request.json();
-        if (request.ok && response.success){
-            await idb.addList(response.data);
-            target.style.height = `${target.scrollHeight}px`;
-        }
-    }
-    private debounceLineItemInput = debounce(this.updateLineItem.bind(this), 600, false);
-    private handleLineItemInput: EventListener = (e:Event) => {
-        const target = e.currentTarget as HTMLInputElement;
-        this.debounceLineItemInput(target);
     }
 
     private addItem:EventListener = async (e:Event) => {
@@ -153,23 +139,7 @@ export default class List extends SuperComponent<ListState>{
         if (response.success){
             await idb.addList(response.data);
             this.update(response.data);
-        }
-    }
-
-    private deleteItem:EventListener = async (e:Event) => {
-        const target = e.currentTarget as HTMLElement;
-        const request = await fetch(`/api/v1/lists/${this.model.uid}/items/${target.dataset.uid}`, {
-            method: "DELETE",
-            headers: new Headers({
-                Accept: "application/json",
-                Authorization: localStorage.getItem("uid"),
-                "Content-Type": "application/json",
-            }),
-        });
-        const response = await request.json();
-        if (response.success){
-            await idb.addList(response.data);
-            this.update(response.data);
+            this.focusAddButton();
         }
     }
 
@@ -211,23 +181,9 @@ export default class List extends SuperComponent<ListState>{
                         </overflow-button>
                     </div>
                     ${Object.keys(this.model.items).map(key => {
-                        return html`
-                            <div class="line-item mt-0.5">
-                                <button data-uid="${key}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-                                    </svg>
-                                </button>
-                                <textarea data-uid="${key}" @input=${this.handleLineItemInput}>${this.model.items[key]}</textarea>
-                                <button @click=${this.deleteItem} data-uid="${key}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </div>
-                        `;
+                        return new ListItem(key, this.model.items[key], this.model.uid);
                     })}
-                    <button @click=${this.addItem} class="bttn w-full mt-0.5" kind="text" color="grey" shape="rounded">Add Item</button>
+                    <button @click=${this.addItem} class="js-add bttn w-full mt-0.5" kind="text" color="grey" shape="rounded">Add Item</button>
                 </div>
             </div>
         `;
