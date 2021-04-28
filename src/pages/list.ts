@@ -3,8 +3,9 @@ import { html, render } from "lit-html";
 import SuperComponent from "@codewithkyle/supercomponent";
 import css from "../utils/css";
 import { navigateTo } from "@codewithkyle/router";
-import { createSubscription, subscribe, unsubscribe } from "@codewithkyle/pubsub";
+import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
 import debounce from "../utils/debounce";
+import { setValueFromKeypath, unsetValueFromKeypath } from "../utils/op-center";
 
 import ListItem from "../components/list-item";
 customElements.define("list-item", ListItem);
@@ -41,13 +42,60 @@ export default class List extends SuperComponent<ListState>{
         this.focusAddButton();
     }
 
-    private async inbox(data){
-        if (data === this.model.uid){
-            const updatedList = await idb.getList(this.model.uid);
-            if (updatedList === null){
-                navigateTo("/lists");
-            } else {
-                this.update(updatedList);
+    private async handleBatchedOps(ops){
+        for (const op of ops){
+            await this.inbox(op);
+        }
+    }
+
+    private async inbox(operation){
+        if (operation.key === this.model.uid){
+            console.log(operation);
+            const keypath = operation?.keypath?.split("::") ?? [];
+            switch (operation.op){
+                case "UNSET":
+                    if (keypath?.[0] === "items"){
+                        const item = this.querySelector(`[data-uid="${keypath[1]}"]`) as ListItem;
+                        if (item){
+                            item.unset(keypath.splice(2, keypath.length - 1));
+                        } else {
+                            const updated = {...this.model};
+                            unsetValueFromKeypath(updated, keypath);
+                            this.update(updated);
+                        }
+                    } else {
+                        const updated = {...this.model};
+                        unsetValueFromKeypath(updated, keypath);
+                        this.update(updated);
+                    }
+                    break;
+                case "SET":
+                    if (keypath?.[0] === "items"){
+                        const item = this.querySelector(`[data-uid="${keypath[1]}"]`) as ListItem;
+                        if (item){
+                            item.set(keypath.splice(2, keypath.length - 1), operation.value);
+                        } else {
+                            const updated = {...this.model};
+                            setValueFromKeypath(updated, keypath, operation.value);
+                            this.update(updated);
+                        }
+                    } else {
+                        const updated = {...this.model};
+                        setValueFromKeypath(updated, keypath, operation.value);
+                        console.log(updated);
+                        this.update(updated);
+                    }
+                    break;
+                case "BATCH":
+                    await this.handleBatchedOps(operation.ops);
+                    break;
+                case "INSERT":
+                    return;
+                case "DELETE":
+                    navigateTo("/lists");
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -182,7 +230,7 @@ export default class List extends SuperComponent<ListState>{
                     </div>
                     <div class="list">
                         ${Object.keys(this.model.items).map(key => {
-                            return new ListItem(key, this.model.items[key].value, this.model.items[key].order, this.model.uid, this.update.bind(this));
+                            return new ListItem(key, this.model.items[key].value, this.model.items[key].order, this.model.uid);
                         })}
                     </div>
                     <button @click=${this.addItem} class="js-add bttn w-full mt-0.5" kind="text" color="grey" shape="rounded">Add Item</button>

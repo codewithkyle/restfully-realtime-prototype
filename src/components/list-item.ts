@@ -2,7 +2,7 @@ import { html, render } from "lit-html";
 import debounce from "../utils/debounce";
 import idb from "../controllers/idb-manager";
 import SuperComponent from "@codewithkyle/supercomponent";
-import { publish } from "@codewithkyle/pubsub";
+import { setValueFromKeypath, unsetValueFromKeypath } from "../utils/op-center";
 
 type ListItemState = {
     uid: string;
@@ -11,6 +11,7 @@ type ListItemState = {
     order: number;
 };
 export default class ListItem extends SuperComponent<ListItemState>{
+
     constructor(uid, value, order, listUid){
         super();
         this.model = {
@@ -20,6 +21,18 @@ export default class ListItem extends SuperComponent<ListItemState>{
             order: order,
         };
         this.render();
+    }
+
+    public set(keypath, value){
+        const updated = {...this.model};
+        setValueFromKeypath(updated, keypath, value);
+        this.update(updated);
+    }
+
+    public unset(keypath){
+        const updated = {...this.model};
+        unsetValueFromKeypath(updated, keypath);
+        this.update(updated);
     }
 
     private startDrag = (e:DragEvent) => {
@@ -97,11 +110,6 @@ export default class ListItem extends SuperComponent<ListItemState>{
             }),
             body: JSON.stringify(data),
         });
-        const response = await request.json();
-        if (request.ok && response.success){
-            await idb.addList(response.data);
-            target.style.height = `${target.scrollHeight}px`;
-        }
     }
     private debounceLineItemInput = debounce(this.updateLineItem.bind(this), 600, false);
     private handleLineItemInput: EventListener = (e:Event) => {

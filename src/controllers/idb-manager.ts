@@ -158,7 +158,7 @@ class IDBManager {
                 console.warn(`Unhandled OP type: ${op}`);
                 break;
         }
-        publish("data-sync", key);
+        publish("data-sync", operation);
     }
 }
 const manager = new IDBManager();
