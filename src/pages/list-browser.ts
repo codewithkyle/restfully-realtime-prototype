@@ -3,6 +3,7 @@ import { navigateTo } from "@codewithkyle/router";
 import idb from "../controllers/idb-manager";
 import SuperComponent from "@codewithkyle/supercomponent";
 import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
+import { toast } from "@codewithkyle/notifyjs";
 
 type ListBrowserState = {
     lists: Array<any>,
@@ -49,6 +50,12 @@ export default class ListBrowser extends SuperComponent<ListBrowserState>{
         if (response.success){
             await idb.addList(response.data);
             navigateTo(`/lists/${response.data.uid}`);
+            toast({
+                title: "List Created",
+                message: `List ${name} has been created.`,
+                classes: ["-green"],
+                closeable: true,
+            });
         }
     }
 

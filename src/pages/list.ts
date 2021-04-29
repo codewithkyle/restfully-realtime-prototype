@@ -6,6 +6,7 @@ import { navigateTo } from "@codewithkyle/router";
 import { subscribe, unsubscribe } from "@codewithkyle/pubsub";
 import debounce from "../utils/debounce";
 import { setValueFromKeypath, unsetValueFromKeypath } from "../utils/op-center";
+import { toast } from "@codewithkyle/notifyjs";
 
 import ListItem from "../components/list-item";
 customElements.define("list-item", ListItem);
@@ -80,6 +81,12 @@ export default class List extends SuperComponent<ListState>{
                     return;
                 case "DELETE":
                     navigateTo("/lists");
+                    toast({
+                        title: "List Deleted",
+                        message: `${this.model.name} has been deleted.`,
+                        classes: ["-red"],
+                        closeable: true,
+                    });
                     break;
                 default:
                     break;
@@ -98,6 +105,13 @@ export default class List extends SuperComponent<ListState>{
         const response = await request.json();
         if (request.ok && response.success){
             navigateTo("/lists");
+        } else {
+            toast({
+                title: "Error",
+                message: response.error,
+                classes: ["-red"],
+                closeable: true,
+            });
         }
     }
 
@@ -134,6 +148,15 @@ export default class List extends SuperComponent<ListState>{
                 }),
                 body: JSON.stringify(data),
             });
+            const response = await request.json();
+            if (!request.ok || !response?.success){
+                toast({
+                    title: "Error",
+                    message: response.error,
+                    classes: ["-red"],
+                    closeable: true,
+                });
+            }
         }
     }
     private debounceTitleInput = debounce(this.updateTitle.bind(this), 600, false);
@@ -159,6 +182,15 @@ export default class List extends SuperComponent<ListState>{
             }),
             body: JSON.stringify(data),
         });
+        const response = await request.json();
+        if (!request.ok || !response?.success){
+            toast({
+                title: "Error",
+                message: response.error,
+                classes: ["-red"],
+                closeable: true,
+            });
+        }
         this.focusAddButton();
     }
 

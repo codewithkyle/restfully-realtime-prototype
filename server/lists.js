@@ -31,9 +31,13 @@ class ListManager {
         }
         return out;
     }
-    deleteList(uid){
+    deleteList(uid, userId){
         if (uid in this.lists){
-            delete this.lists[uid];
+            if (this.lists[uid].author === userId){
+                delete this.lists[uid];
+            } else {
+                throw 401;
+            }
         } else {
             throw 404;
         }

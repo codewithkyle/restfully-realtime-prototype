@@ -8,6 +8,7 @@
     "ws": "^7.4.5"
   },
   "devDependencies": {
+    "@codewithkyle/notifyjs": "^3.1.0",
     "@codewithkyle/pubsub": "^1.1.0",
     "@codewithkyle/router": "^1.0.0",
     "@codewithkyle/supercomponent": "^1.0.0",
@@ -26,6 +27,7 @@
     "@codewithkyle/supercomponent",
     "@codewithkyle/router",
     "@codewithkyle/pubsub",
+    "@codewithkyle/notifyjs",
     "lit-html",
     "fuzzysort",
     "idb"

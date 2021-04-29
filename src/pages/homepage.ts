@@ -1,6 +1,7 @@
 import { navigateTo } from "@codewithkyle/router";
 import { html, render } from "lit-html";
 import idb from "../controllers/idb-manager";
+import { toast } from "@codewithkyle/notifyjs";
 
 export default class Homepage extends HTMLElement{
     constructor(){
@@ -45,6 +46,12 @@ export default class Homepage extends HTMLElement{
         if (response.success){
             await idb.addList(response.data);
             navigateTo(`/lists/${response.data.uid}`);
+            toast({
+                title: "List Created",
+                message: `List ${name} has been created.`,
+                classes: ["-green"],
+                closeable: true,
+            });
         }
     }
 

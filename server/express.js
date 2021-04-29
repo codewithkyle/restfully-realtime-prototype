@@ -67,7 +67,7 @@ app.delete('/api/v1/lists/:listUid', async (req, res) => {
         const { listUid } = req.params;
         const userId = req.get("authorization");
         const list = ListManager.verifyAccess(listUid, userId);
-        ListManager.deleteList(listUid);
+        ListManager.deleteList(listUid, userId);
         CommandCenter.op({
             op: "DELETE",
             table: "lists",

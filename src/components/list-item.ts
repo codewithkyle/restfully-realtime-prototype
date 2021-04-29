@@ -1,8 +1,8 @@
 import { html, render } from "lit-html";
 import debounce from "../utils/debounce";
-import idb from "../controllers/idb-manager";
 import SuperComponent from "@codewithkyle/supercomponent";
 import { setValueFromKeypath, unsetValueFromKeypath } from "../utils/op-center";
+import { toast } from "@codewithkyle/notifyjs";
 
 type ListItemState = {
     uid: string;
@@ -72,6 +72,15 @@ export default class ListItem extends SuperComponent<ListItemState>{
             }),
             body: JSON.stringify(data),
         });
+        const response = await request.json();
+        if (!request.ok || !response?.success){
+            toast({
+                title: "Error",
+                message: response.error,
+                classes: ["-red"],
+                closeable: true,
+            });
+        }
     }
 
     private deleteItem:EventListener = async (e:Event) => {
@@ -86,6 +95,13 @@ export default class ListItem extends SuperComponent<ListItemState>{
         const response = await request.json();
         if (response.success){
             this.remove();
+        } else {
+            toast({
+                title: "Error",
+                message: response.error,
+                classes: ["-red"],
+                closeable: true,
+            });
         }
     }
 
@@ -103,6 +119,15 @@ export default class ListItem extends SuperComponent<ListItemState>{
             }),
             body: JSON.stringify(data),
         });
+        const response = await request.json();
+        if (!request.ok || !response?.success){
+            toast({
+                title: "Error",
+                message: response.error,
+                classes: ["-red"],
+                closeable: true,
+            });
+        }
     }
     private debounceLineItemInput = debounce(this.updateLineItem.bind(this), 600, false);
     private handleLineItemInput: EventListener = (e:Event) => {
