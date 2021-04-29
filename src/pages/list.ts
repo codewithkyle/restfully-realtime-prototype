@@ -121,7 +121,6 @@ export default class List extends SuperComponent<ListState>{
     }
 
     private async updateTitle(value){
-        value = value.trim();
         if (value.length){
             const data = {
                 title: value,

@@ -90,7 +90,7 @@ export default class ListItem extends SuperComponent<ListItemState>{
     }
 
     private async updateLineItem(target:HTMLTextAreaElement){
-        const value = target.value.trim();
+        const value = target.value;
         const data = {
             value: value,
         };

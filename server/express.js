@@ -143,7 +143,7 @@ app.put('/api/v1/lists/:listUid/items', async (req, res) => {
         const { listUid } = req.params;
         const { value } = req.body;
         const userId = req.get("authorization");
-        const current = clone(ListManager.verifyAccess(listUid, userId));
+        const current = clone(ListManager.lookup(listUid));
         const updated = ListManager.addItem(listUid, value);
         CommandCenter.op(generate(current, updated, "lists", listUid));
         return res.status(200).json(buildSuccessResponse(updated));
