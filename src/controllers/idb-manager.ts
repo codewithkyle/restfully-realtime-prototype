@@ -107,18 +107,15 @@ class IDBManager {
         });
     }
 
-    private async handleBatch(ops){
+    private async performBatchedOPs(ops){
         for (const op of ops){
             await this.handleOP(op);
         }
     }
 
-    public async handleOP(operation){
-        const { op, ops, table, key, value, keypath } = operation;
+    public async performOP(operation){
+        const { op, table, key, value, keypath } = operation;
         switch (op){
-            case "BATCH":
-                this.handleBatch(ops);
-                break;
             case "UNSET":
                 await new Promise(resolve => {
                     this.send("unset", {
@@ -159,6 +156,19 @@ class IDBManager {
                 break;
         }
         publish("data-sync", operation);
+        console.log(operation);
+    }
+
+    public async handleOP(operation){
+        const { op, ops } = operation;
+        switch (op){
+            case "BATCH":
+                await this.performBatchedOPs(ops);
+                break;
+            default:
+                await this.performOP(operation);
+                break;
+        }
     }
 }
 const manager = new IDBManager();

@@ -54,9 +54,16 @@ export default class List extends SuperComponent<ListState>{
             const keypath = operation?.keypath?.split("::") ?? [];
             switch (operation.op){
                 case "UNSET":
-                    const updated = {...this.model};
-                    unsetValueFromKeypath(updated, keypath);
-                    this.update(updated);
+                    if (keypath?.[0] === "items"){
+                        const item = this.querySelector(`[data-uid="${keypath[1]}"]`) as ListItem;
+                        if (item){
+                            item.remove();
+                        }
+                    } else {
+                        const updated = {...this.model};
+                        unsetValueFromKeypath(updated, keypath);
+                        this.update(updated);
+                    }
                     break;
                 case "SET":
                     if (keypath?.[0] === "items"){
