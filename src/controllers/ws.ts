@@ -7,8 +7,7 @@ let running = false;
 
 async function processOperations(){
     running = true;
-    const ops = operations.splice(0, operations.length);
-    for (const op of ops){
+    for (const op of operations){
         await idb.handleOP(op);
     }
     running = false;

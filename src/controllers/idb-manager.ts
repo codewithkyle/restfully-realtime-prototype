@@ -109,7 +109,7 @@ class IDBManager {
 
     private async performBatchedOPs(ops){
         for (const op of ops){
-            await this.handleOP(op);
+            await this.performOP(op);
         }
     }
 
