@@ -1,13 +1,12 @@
-const http = require('http');
-const express = require('express');
+const http = require("http");
+const express = require("express");
 const app = express();
-app.use(express.static('public'));
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 const httpServer = http.createServer(app);
 httpServer.listen(5001);
 const path = require("path");
-const cwd = process.cwd();
+const fs = require("fs");
 
 const { buildSuccessResponse, buildErrorResponse, clone } = require("./utils");
 const AccountManager = require("./accounts");
@@ -15,31 +14,31 @@ const ListManager = require("./lists");
 const CommandCenter = require("./command-center");
 const generate = require("./diff");
 
-app.post('/api/v1/login', async (req, res) => {
+app.post("/api/v1/login", async (req, res) => {
     try {
         const uid = AccountManager.createUser();
         return res.status(200).json(buildSuccessResponse(uid));
     } catch (status) {
-        switch (status){
+        switch (status) {
             default:
                 return res.status(500).json(buildErrorResponse(status));
         }
     }
 });
 
-app.get('/api/v1/lists', async (req, res) => {
+app.get("/api/v1/lists", async (req, res) => {
     try {
         const lists = ListManager.getLists();
         return res.status(200).json(buildSuccessResponse(lists));
     } catch (status) {
-        switch (status){
+        switch (status) {
             default:
                 return res.status(500).json(buildErrorResponse(status));
         }
     }
 });
 
-app.put('/api/v1/lists', async (req, res) => {
+app.put("/api/v1/lists", async (req, res) => {
     try {
         const userId = req.get("authorization");
         const { name } = req.body;
@@ -53,16 +52,22 @@ app.put('/api/v1/lists', async (req, res) => {
         });
         return res.status(200).json(buildSuccessResponse(list));
     } catch (status) {
-        switch (status){
+        switch (status) {
             case 401:
-                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            "You are not authorized to perform this action."
+                        )
+                    );
             default:
                 return res.status(500).json(buildErrorResponse(status));
         }
     }
 });
 
-app.delete('/api/v1/lists/:listUid', async (req, res) => {
+app.delete("/api/v1/lists/:listUid", async (req, res) => {
     try {
         const { listUid } = req.params;
         const userId = req.get("authorization");
@@ -76,18 +81,30 @@ app.delete('/api/v1/lists/:listUid', async (req, res) => {
         });
         return res.status(200).json(buildSuccessResponse());
     } catch (status) {
-        switch (status){
+        switch (status) {
             case 404:
-                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            `Project with UID ${req.params.uid} does not exist.`
+                        )
+                    );
             case 401:
-                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            "You are not authorized to perform this action."
+                        )
+                    );
             default:
                 return res.status(500).json(buildErrorResponse(status));
         }
     }
 });
 
-app.post('/api/v1/lists/:listUid/toggle', async (req, res) => {
+app.post("/api/v1/lists/:listUid/toggle", async (req, res) => {
     try {
         const { listUid } = req.params;
         const userId = req.get("authorization");
@@ -101,18 +118,30 @@ app.post('/api/v1/lists/:listUid/toggle', async (req, res) => {
         });
         return res.status(200).json(buildSuccessResponse(list));
     } catch (status) {
-        switch (status){
+        switch (status) {
             case 404:
-                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            `Project with UID ${req.params.uid} does not exist.`
+                        )
+                    );
             case 401:
-                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            "You are not authorized to perform this action."
+                        )
+                    );
             default:
                 return res.status(500).json(buildErrorResponse(status));
         }
     }
 });
 
-app.post('/api/v1/lists/:listUid/update-title', async (req, res) => {
+app.post("/api/v1/lists/:listUid/update-title", async (req, res) => {
     try {
         const { listUid } = req.params;
         const { title } = req.body;
@@ -127,18 +156,30 @@ app.post('/api/v1/lists/:listUid/update-title', async (req, res) => {
         });
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
-        switch (status){
+        switch (status) {
             case 404:
-                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            `Project with UID ${req.params.uid} does not exist.`
+                        )
+                    );
             case 401:
-                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            "You are not authorized to perform this action."
+                        )
+                    );
             default:
                 return res.status(500).json(buildErrorResponse(status));
         }
     }
 });
 
-app.put('/api/v1/lists/:listUid/items', async (req, res) => {
+app.put("/api/v1/lists/:listUid/items", async (req, res) => {
     try {
         const { listUid } = req.params;
         const { value } = req.body;
@@ -148,18 +189,30 @@ app.put('/api/v1/lists/:listUid/items', async (req, res) => {
         CommandCenter.op(generate(current, updated, "lists", listUid));
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
-        switch (status){
+        switch (status) {
             case 404:
-                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            `Project with UID ${req.params.uid} does not exist.`
+                        )
+                    );
             case 401:
-                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            "You are not authorized to perform this action."
+                        )
+                    );
             default:
                 return res.status(500).json(buildErrorResponse(status));
         }
     }
 });
 
-app.delete('/api/v1/lists/:listUid/items/:itemUid', async (req, res) => {
+app.delete("/api/v1/lists/:listUid/items/:itemUid", async (req, res) => {
     try {
         const { listUid, itemUid } = req.params;
         const userId = req.get("authorization");
@@ -172,18 +225,30 @@ app.delete('/api/v1/lists/:listUid/items/:itemUid', async (req, res) => {
         });
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
-        switch (status){
+        switch (status) {
             case 404:
-                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            `Project with UID ${req.params.uid} does not exist.`
+                        )
+                    );
             case 401:
-                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            "You are not authorized to perform this action."
+                        )
+                    );
             default:
                 return res.status(500).json(buildErrorResponse(status));
         }
     }
 });
 
-app.post('/api/v1/lists/:listUid/items/:itemUid/update', async (req, res) => {
+app.post("/api/v1/lists/:listUid/items/:itemUid/update", async (req, res) => {
     try {
         const { listUid, itemUid } = req.params;
         const { value } = req.body;
@@ -198,28 +263,44 @@ app.post('/api/v1/lists/:listUid/items/:itemUid/update', async (req, res) => {
         });
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
-        switch (status){
+        switch (status) {
             case 404:
-                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            `Project with UID ${req.params.uid} does not exist.`
+                        )
+                    );
             case 401:
-                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            "You are not authorized to perform this action."
+                        )
+                    );
             default:
                 return res.status(500).json(buildErrorResponse(status));
         }
     }
 });
 
-app.post('/api/v1/lists/:listUid/items/:itemUid/move', async (req, res) => {
+app.post("/api/v1/lists/:listUid/items/:itemUid/move", async (req, res) => {
     try {
         const { listUid, itemUid } = req.params;
         const { hijackedItemId } = req.body;
         const userId = req.get("authorization");
-        const updated = ListManager.moveLineItem(listUid, itemUid, hijackedItemId);
+        const updated = ListManager.moveLineItem(
+            listUid,
+            itemUid,
+            hijackedItemId
+        );
         const op = {
             op: "BATCH",
-            ops: []
+            ops: [],
         };
-        for (const key in updated.items){
+        for (const key in updated.items) {
             op.ops.push({
                 op: "SET",
                 table: "lists",
@@ -231,17 +312,41 @@ app.post('/api/v1/lists/:listUid/items/:itemUid/move', async (req, res) => {
         CommandCenter.op(op);
         return res.status(200).json(buildSuccessResponse(updated));
     } catch (status) {
-        switch (status){
+        switch (status) {
             case 404:
-                return res.status(status).json(buildErrorResponse(`Project with UID ${req.params.uid} does not exist.`));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            `Project with UID ${req.params.uid} does not exist.`
+                        )
+                    );
             case 401:
-                return res.status(status).json(buildErrorResponse("You are not authorized to perform this action."));
+                return res
+                    .status(status)
+                    .json(
+                        buildErrorResponse(
+                            "You are not authorized to perform this action."
+                        )
+                    );
             default:
                 return res.status(500).json(buildErrorResponse(status));
         }
     }
 });
 
+app.get("/js/*", async (req, res) => {
+    return res.sendFile(path.join(__dirname, "../", "public", req.path));
+});
+
+app.get("/css/*", async (req, res) => {
+    return res.sendFile(path.join(__dirname, "../", "public", req.path));
+});
+
 app.get("/*", async (req, res) => {
-    return res.sendFile(path.join(cwd, "public", "index.html"));
+    const requestedFilePath = path.join(__dirname, "../", "public", req.path);
+    if (fs.existsSync(requestedFilePath)) {
+        return res.sendFile(requestedFilePath);
+    }
+    return res.sendFile(path.join(__dirname, "../", "public", "index.html"));
 });
